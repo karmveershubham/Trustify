@@ -1,15 +1,15 @@
 import React from 'react'
 import Image from 'next/image'
-import loginImage from '../components/images/login.svg.png'
+import loginImage from '../../../public/images/login.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
-import HeaderSignLogin from '../components/HeaderSignLogin';
+import HeaderSignLogin from '../../components/Header';
 export default function Signup() {
   return (
     <div>
       <HeaderSignLogin/>
-    <div className=" mt-3 absolute w-full h-[695.89px] bg-white rounded-[20px] flex">
+    <div className=" mt-3 absolute w-full h-[695.89px] bg-[#FAF9F6] rounded-[20px] flex">
     {/* Left Inner Div */}
     <div className="w-1/2 h-full bg-gray-100 flex items-center justify-center relative">
         {/* SVG Image centered in the left div */}

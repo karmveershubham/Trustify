@@ -1,8 +1,8 @@
 import React from 'react'
-import logo from '../components/images/logo.png.png'
+import logo from '../../public/icons/logo.png'
 import Image from 'next/image'
 import Link from 'next/link'
-function HeaderSignLogin() {
+function Header() {
   return (
     <div className='relative flex flex-col'>
     <div className="relative w-full h-[50px] bg-white rounded-[10px]">
@@ -31,9 +31,9 @@ function HeaderSignLogin() {
       <Image
         src={logo}
         alt="Logo"
-        width={40}  // Width in pixels
-        height={70} // Height in pixels
-        className="w-[20px] h-[20px]"
+        width={50}  // Width in pixels
+        height={80} // Height in pixels
+        className="w-[25px] h-[25px] mb-4"
       />
     </div>
 
@@ -73,4 +73,4 @@ function HeaderSignLogin() {
   )
 }
 
-export default HeaderSignLogin
+export default Header;
