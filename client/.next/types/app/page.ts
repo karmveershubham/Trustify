@@ -1,4 +1,4 @@
-// File: D:\NeoMart\client\src\app\page.js
+// File: C:\Users\Lenovo\Desktop\New folder\neoMart\client\src\app\page.js
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
