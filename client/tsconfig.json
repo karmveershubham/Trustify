@@ -1,18 +1,27 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@components/*": ["components/*"],
+      "@utils/*": ["utils/*"],
+      "@styles/*": ["styles/*"],
+      "@ui/*": ["components/ui/*"]
+    },
+    "lib": [ "dom", "dom.iterable", "esnext"],
+
+
     "allowJs": true,
     "skipLibCheck": true,
+//  "strict": true,
     "strict": false,
     "noEmit": true,
+    
     "incremental": true,
     "module": "esnext",
     "esModuleInterop": true,
     "moduleResolution": "node",
+//  "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -20,19 +29,17 @@
       {
         "name": "next"
       }
+
     ],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
+    ]
+    
+
   },
-  "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    "**/*.ts",
-    "**/*.tsx"
-, ".next/types/app/layout.tsx", ".next/types/app/page.tsx"  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/LoginCard.tsx"],
+  "exclude": ["node_modules"]
 }
+
