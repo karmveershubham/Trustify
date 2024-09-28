@@ -69,9 +69,12 @@ export default function Signin() {
         <div className="absolute w-[162.67px] h-[50px] left-[23px] top-[290.39px]">
   {/* Register Button */}
   <button className="w-full h-full bg-[#1ABA1A] rounded-[10px] flex items-center justify-center hover:bg-[#32CD32] transition-colors duration-300 ease-in-out">
+  <Link href="/userprofile">
   <span className="font-inter font-medium text-[14px] leading-[21px] text-white uppercase">
     LOGIN
   </span>
+  </Link>
+  
 </button>
 
 
