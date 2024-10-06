@@ -1,5 +1,5 @@
- export const signup=(req,res)=>{
-    const username=req.body.username
-    const password=req.body.password
-
+const signup= (req,res)=>{
+   // const username=req.body.username
+    //const password=req.body.password
 }
+module.exports = {signup}
