@@ -1,4 +1,7 @@
+
+'use client'; 
 import React from 'react'
+
 import Image from 'next/image'
 import loginImage from '../../../public/images/login.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,6 +9,11 @@ import { faLock } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import HeaderSignLogin from '../../components/Header';
 export default function Signup() {
+  const handleGoogleSignIn = () => {
+    // Redirect to your Express backend for Google authentication
+    window.location.href = `http://localhost:8080/auth/google`;
+
+  };
   return (
     <div>
       <HeaderSignLogin/>
@@ -102,7 +110,16 @@ export default function Signup() {
         Already user?LOGIN here
       </span>
     </Link>
+    
   </div>
+  <button onClick={handleGoogleSignIn}
+   className="w-full h-full bg-[#1ABA1A] rounded-[10px] flex items-center justify-center hover:bg-[#32CD32] transition-colors duration-300 ease-in-out">
+  <span className="font-inter font-medium text-[14px] leading-[21px] text-white uppercase">
+    SIGN IN WITH google
+  </span>
+</button>
+  
+
 </div>
 
       </div>
