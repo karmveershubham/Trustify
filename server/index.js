@@ -21,9 +21,10 @@ app.use(cors({
 
 // Express session middleware
 app.use(session({
-    secret: 'your-secret-key', // Change to a secure secret
+    secret: process.env.SECRET_KEY, // Change to a secure secret
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: { secure: false }
 }));
 
 // Initialize passport middleware
@@ -68,7 +69,7 @@ app.get('/test', async (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.APP_PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
