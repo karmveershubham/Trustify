@@ -7,7 +7,7 @@ import logo from "../../public/icons/logo.png"
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gradient-to-b from-white via-[#EDF0FD] to-[#EDF0FD]  text-gray-900 py-8">
+    <footer className="bg-gradient-to-b from-white via-[#EDF0FD] to-[#EDF0FD]  text-gray-900 py-8 lg: px-4 sm:px-12 lg:px-16">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Column 1: Download */}
@@ -30,8 +30,7 @@ const Footer: React.FC = () => {
               <Image src={logo} alt="Logo" className="mx-auto mb-4" width={20} height={20} />
             </Link>
             <p>
-              {/* NeoMart is a marketplace where trust is built through your contacts. <br/>Every seller is someone within your network, ensuring authenticity and reliability. */}
-              <span className="text-4xl font-bold text-gray-800 mb-4">NeoMart</span><br/>
+              <span className="text-4xl font-bold text-gray-800 mb-4">Trustify</span><br/>
               <span className="text-2xl text-gray-600 mb-6">Buy Smart, Sell Easy</span> 
             </p>
           </div>

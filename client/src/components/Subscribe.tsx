@@ -6,7 +6,7 @@ import { AnimatedSubscribeButton } from "@/components/ui/animated-subscribe-butt
 
 const Subscribe: React.FC = () => {
   return (
-    <section className="relative w-full h-[483px] bg-[#FAFAFF] flex flex-col items-center justify-center">
+    <section className="relative w-full h-[483px] bg-gradient-to-b from-[#EDF0FD] to-white  flex flex-col items-center justify-center  lg: px-4 sm:px-12 lg:px-16">
       {/* Subscribe Header */}
       <h2 className="text-[#2D3150] font-bold text-4xl text-center mb-2">
         Subscribe Newsletter & Get

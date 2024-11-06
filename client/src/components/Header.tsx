@@ -21,7 +21,7 @@ function Header() {
             {/* Rectangle 1 */}
             <div className="absolute w-[100px] h-[30px] left-[-110px] flex items-center justify-center  bg-[#D9D9D9] rounded-[20px] top-1/4 transform -translate-y-1/2">
               {/* Content for Rectangle 1 goes here */}
-              <h1 className="top-[16px] flex items-center text-center underline text-black font-bold text-[12px] leading-[18px]">NEOMART</h1>
+              <h1 className="top-[16px] flex items-center text-center underline text-black font-bold text-[12px] leading-[18px]">Trustify</h1>
             </div>
           </div>
 
