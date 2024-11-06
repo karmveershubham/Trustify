@@ -3,8 +3,8 @@ import Image from 'next/image'; // Assuming you're using Next.js Image component
 import Link from 'next/link';
 import NeoImage from '../../public/images/feature.png';
 import logo from '../../public/icons/logo.png'
-
-const Landing: React.FC = () => {
+import BlurFade from "@/components/ui/blur-fade";
+const Hero: React.FC = () => {
   return (
     
     <div className="min-h-screen bg-gradient-to-b from-[#EDF0FD] to-white flex flex-col ">
@@ -18,7 +18,7 @@ const Landing: React.FC = () => {
             width={40}  
             height={60}
           />
-           <h2 className="text-1xl font-bold text-gray-800 ml-3  p-2 bg-gray-200 rounded-lg">NEOMART</h2>
+           <h1 className="text-2xl font-bold text-gray-800 ml-3  p-2 bg-gray-200 rounded-lg">NeoMart</h1>
         </div>
 
         {/* Middle Div - Navigation */}
@@ -40,8 +40,9 @@ const Landing: React.FC = () => {
       <main className="flex justify-around items-center mt-16 px-12 ml-15 mr-15">
         {/* Left Div - Site Info */}
         <div className="max-w-lg p-8 m-4">
-          <h1 className="text-7xl font-bold text-gray-800 mb-4">NeoMart</h1> {/* Increased font size for NeoMart */}
-          <h2 className="text-3xl text-gray-600 mb-6">Buy Smart, Sell Easy</h2> {/* Increased font size for tagline */}
+          <BlurFade delay={0.10} inView><h1 className="text-7xl font-bold text-gray-800 mb-4">NeoMart</h1> </BlurFade>
+          <BlurFade delay={0.10} inView> <h2 className="text-3xl text-gray-600 mb-6">Buy Smart, Sell Easy</h2> </BlurFade>
+         
           <p className="text-md text-gray-600 opacity-70 mb-4"> {/* Smaller text and lower opacity */}
             NeoMart is your go-to platform for buying and selling products quickly and safely.
             Enjoy a hassle-free eCommerce experience designed for smart shoppers and sellers.
@@ -67,4 +68,4 @@ const Landing: React.FC = () => {
   );
 };
 
-export default Landing;
+export default Hero;
