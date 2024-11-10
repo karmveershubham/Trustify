@@ -15,6 +15,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "express-session": "^1.18.0",
+    "i": "^0.3.7",
     "neo4j-driver": "^5.25.0",
     "nodemon": "^3.1.4",
     "passport": "^0.7.0",
