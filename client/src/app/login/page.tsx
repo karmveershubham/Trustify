@@ -1,95 +1,62 @@
 import React from 'react'
 import Image from 'next/image'
-import loginImage from '../../../public/images/login.png';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock } from '@fortawesome/free-solid-svg-icons';
-import Link from 'next/link';
-import Header from '../../components/Header';
+import loginImage from '../../../public/images/login.png'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faLock } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
+import Header from '../../components/Header'
+
 export default function Signin() {
   return (
-    <div>
-        <Header/>
-    <div className=" mt-3 absolute w-full h-[695.89px] bg-white rounded-[20px] items-center flex">
-    {/* Left Inner Div */}
-    <div className="w-1/2 h-full bg-gray-100 flex items-center justify-center relative">
-        {/* SVG Image centered in the left div */}
-        <Image
-          src={loginImage}
-          alt="Login"
-          width={401.32} // Set the width
-          height={327.23} // Set the height
-          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
-        />
-      </div>
-    {/* Right Inner Div */}
-    <div className="w-1/2 h-full bg-gray-100 flex flex-col items-start justify-start relative p-6 ">
-        {/* Heading for Register aligned to the left */}
-        <h3 className="w-auto h-auto 
-                      font-inter font-bold text-[28px] leading-[34px] 
-                      text-[#1ABA1A]  ">
-          Welcome Back
-        </h3>
-        <p className="mt-2 font-inter font-normal text-[14px] leading-[24px] text-[#999999] 
-                      letter-spacing-[2px] uppercase">
-          LOGIN TO CONTINUE
-        </p>
-         {/* Your Name Label below "Join us" */}
-         <label className="mt-2 font-inter font-normal text-[14px] leading-[21px] text-[#000000]">
-          Email Address
-        </label>
-       
-        
-        {/* Input Field for Email */}
-        <input 
-          type="email" 
-          placeholder="Enter your email" 
-          className="mt-2 h-[43px] w-full md:w-[calc(100%-129.89px)] bg-white border border-[#CCCCCC] rounded-[6px] p-2 pl-3"
-          style={{ marginLeft: '1px' }} // Adjust left position
-        />
-        <label className="mt-5 font-inter font-normal text-[14px] leading-[21px] text-[#000000]">
-          Password
-        </label>
-        
-        {/* Input Field for Password */}
-        <div className="relative mt-2">
-          <input 
-            type="password" 
-            placeholder=''
-            className="h-[43px] w-full bg-white border border-[#CCCCCC] rounded-[6px] pl-10 pr-3" // Adjust padding
-          />
-          <div 
-            className="absolute left-1 top-1/2 transform -translate-y-1/2 text-black" // Positioning
-          >
-            <FontAwesomeIcon icon={faLock} className="w-[15.2px] h-[12px]" />
+    <div className='min-h-screen bg-gradient-to-b from-[#EDF0FD] to-white'>
+      <Header />
+      <div className="mt-8 flex justify-center m-10">
+        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex items-center p-8 mx-4">
+          {/* Left Section with Image */}
+          <div className="w-1/2 flex items-center justify-center">
+            <Image src={loginImage} alt="Login" width={400} height={330} />
+          </div>
+
+          {/* Right Section with Form */}
+          <div className="w-1/2 flex flex-col space-y-6 px-6">
+            <h3 className="text-2xl font-bold text-black">Welcome Back</h3>
+            <p className="text-sm uppercase tracking-wide text-gray-500">Login to Continue</p>
+
+            {/* Email Input */}
+            <label className="text-sm text-black">Email Address</label>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="h-11 w-full border border-gray-300 rounded-lg px-3"
+            />
+
+            {/* Password Input */}
+            <label className="text-sm text-black">Password</label>
+            <div className="relative">
+              <input
+                type="password"
+                placeholder="Enter your password"
+                className="h-11 w-full border border-gray-300 rounded-lg pl-10"
+              />
+              <FontAwesomeIcon icon={faLock} className="w-[15.2px] h-[12px] absolute left-3 top-1/2 transform -translate-y-1/2  " />
+            </div>
+
+            {/* Login Button */}
+            <button className="w-full h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <Link href="/login" className="uppercase text-sm font-medium">
+                Login
+              </Link>
+            </button>
+
+            {/* Signup Link */}
+            <div className="flex justify-center">
+              <Link href="/register">
+                <span className="text-xs uppercase text-gray-500">New User? Signup</span>
+              </Link>
+            </div>
           </div>
         </div>
-       
-        {/* Confirm Password Input Field with Icon */}
-        
-        <div className="absolute w-[162.67px] h-[50px] left-[23px] top-[290.39px]">
-  {/* Register Button */}
-  <button className="w-full h-full bg-[#1ABA1A] rounded-[10px] flex items-center justify-center hover:bg-[#32CD32] transition-colors duration-300 ease-in-out">
-  <Link href="/userprofile">
-  <span className="font-inter font-medium text-[14px] leading-[21px] text-white uppercase">
-    LOGIN
-  </span>
-  </Link>
-  
-</button>
-
-
-  {/* "Already user?" Link below the Register Button */}
-  <div className="mt-4 flex justify-center">
-    <Link href="/register">
-      <span className="font-inter font-normal text-[13px] leading-[20px] text-[#999999] uppercase">
-        NEW USER? SIGNUP
-      </span>
-    </Link>
-  </div>
-</div>
-
       </div>
-  </div>
-  </div>
+    </div>
   )
 }
