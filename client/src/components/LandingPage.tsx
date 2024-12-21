@@ -18,7 +18,7 @@ const Landing: React.FC = () => {
             width={40}  
             height={60}
           />
-           <h2 className="text-1xl font-bold text-gray-800 ml-3  p-2 bg-gray-200 rounded-lg">NEOMART</h2>
+           <h2 className="text-1xl font-bold text-gray-800 ml-3  p-2 bg-gray-200 rounded-lg">TRUSTIFY</h2>
         </div>
 
         {/* Middle Div - Navigation */}
@@ -40,11 +40,10 @@ const Landing: React.FC = () => {
       <main className="flex justify-around items-center mt-16 px-12 ml-15 mr-15">
         {/* Left Div - Site Info */}
         <div className="max-w-lg p-8 m-4">
-          <h1 className="text-7xl font-bold text-gray-800 mb-4">NeoMart</h1> {/* Increased font size for NeoMart */}
-          <h2 className="text-3xl text-gray-600 mb-6">Buy Smart, Sell Easy</h2> {/* Increased font size for tagline */}
+          <h1 className="text-7xl font-bold text-gray-800 mb-4">TRUSTIFY</h1> {/* Increased font size for NeoMart */}
+          <h2 className="text-3xl text-gray-600 mb-6">    <span className="text-3xl font-bold animate-bounce">TRUSTIFY</span></h2> {/* Increased font size for tagline */}
           <p className="text-md text-gray-600 opacity-70 mb-4"> {/* Smaller text and lower opacity */}
-            NeoMart is your go-to platform for buying and selling products quickly and safely.
-            Enjoy a hassle-free eCommerce experience designed for smart shoppers and sellers.
+          Welcome to Trustify, where trust and safety meet convenience. Our platform connects buyers and sellers with the assurance of a secure transaction, backed by a dedicated middleman. Enjoy a hassle-free eCommerce experience designed to empower smart shoppers and sellers.
           </p>
           <div className="flex flex-col space-y-4">
             <p className="text-lg text-gray-600"><Link href="/register" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Get Started</Link></p>

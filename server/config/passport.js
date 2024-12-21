@@ -3,19 +3,24 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import passport from 'passport';
 import dotenv from 'dotenv';
 dotenv.config(); 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID, // Use environment variables for security
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:8080/auth/google/callback", // Adjust the callback URL
-    passReqToCallback: true
-  },
-  (request, accessToken, refreshToken, profile, done) => {
-    
-      return done(null, profile);
-    
-  }
-));
 
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "http://localhost:8080/auth/google/callback",
+  // accessType: 'offline', // Required for refresh token
+  passReqToCallback: true,
+},
+(req, accessToken, refreshToken, profile, done) => {
+  // Store the accessToken to access the People API later
+  console.log(accessToken);
+  const user = {
+    profile: profile,
+    accessToken: accessToken,
+    refreshToken: refreshToken
+  };
+  return done(null, {profile, accessToken, refreshToken});
+}));
 
 // Serialize user to session
 passport.serializeUser((user, done) => {
