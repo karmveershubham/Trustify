@@ -7,13 +7,14 @@ import BlurFade from '@/components/ui/blur-fade';
 
 const Hero: React.FC = () => {
   return (
-    <div className="bg-gradient-to-b from-[#EDF0FD] to-white flex flex-col">
+    <div className=" bg-gradient-to-b from-[#EDF0FD] to-white flex flex-col">
     
-      <header className="flex justify-between items-center p-4 bg-transparent">
-      
-        <div className="flex items-center">
-          <Image src={logo} alt="Logo" width={40} height={60} />
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 ml-3 p-2 bg-gray-200 rounded-lg">
+      <header className="fixed top-0 left-0 w-full bg-slate-200 bg-opacity-10 z-50  backdrop-blur-2xl flex justify-between items-center p-4 bg-transparent mb-5">
+        
+        {/* <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center"> */}
+        <div className="flex items-cente">
+          <Image src={logo} alt="Logo" width={48} height={60} />
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 ml-3 p-2 bg-transparent rounded-sm">
             Trustify
           </h1>
         </div>
