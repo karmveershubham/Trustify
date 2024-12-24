@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image'; 
 import Link from 'next/link';
 import NeoImage from '../../public/images/feature.png';
-import logo from '../../public/icons/logo.png';
+import logo from '../../public/icons/logoo.png';
 import BlurFade from '@/components/ui/blur-fade';
 
 const Hero: React.FC = () => {

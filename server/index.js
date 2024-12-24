@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import passport from 'passport';
 import authRoute from './routes/authRoutes.js';
+import loginsignup from './routes/loginsignupRoute.js'
 import './config/passport.js'; // Import passport configuration
 import * as driver from './neo4j/neo4j.js'; // Ensure your Neo4j driver is imported
 
@@ -14,10 +15,13 @@ const app = express();
 app.use(express.json());
 
 // Set up CORS
+
 app.use(cors({
-    origin: 'http://localhost:3000', // Adjust this based on your frontend
-    credentials: true, // Allow credentials to be sent
+    origin: 'http://localhost:3000', // Allow your frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Add allowed methods
+    credentials: true, // If cookies or authorization headers are involved
 }));
+
 
 // Express session middleware
 app.use(session({
@@ -33,7 +37,7 @@ app.use(passport.session());
 
 // Use routes
 app.use('/', authRoute);
-
+app.use('/api',loginsignup)
 // General error handler
 app.use((err, req, res, next) => {
     console.error("Unhandled error:", err);
