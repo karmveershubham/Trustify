@@ -1,11 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import loginImage from "../../../public/images/login.png";
+import loginImage from "@/../public/images/login.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import HeaderSignLogin from "../../components/Header";
 import axios from "axios";
 //import { useRouter } from "next/router";
 import { useRouter } from "next/navigation";
@@ -18,6 +17,7 @@ export default function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState('');
   const [correctPassword, setCorrectPassword] = useState("");
 
   
@@ -61,16 +61,13 @@ export default function Signup() {
       // Handle success (e.g., navigate to another page or show a success message)
     } catch (error) {
       console.error("Signup error:", error.response?.data || error.message);
-      // Display error message to the user if needed
+      setError(error.response?.data?.message || "Failed to Register. Please try again.");
     }
   };
-  
-
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#EDF0FD] to-white">
-      <HeaderSignLogin />
-      <div className="mt-8 flex justify-center">
+      <div className="flex justify-center items-center h-screen">
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex">
           {/* Left Section with Image */}
           <div className="w-1/2 flex items-center justify-center">
@@ -83,6 +80,9 @@ export default function Signup() {
             <p className="text-sm uppercase tracking-wide text-gray-500">
               Join us
             </p>
+
+            {error && <div className="text-red-500 text-sm">{error}</div>}
+            
             <form onSubmit={handleSubmit}>
               <label className="text-sm text-black">Your Name</label>
               <input
@@ -122,7 +122,7 @@ export default function Signup() {
               </div>
 
               <label className="text-sm text-black">Confirm Password</label>
-              <div className="relative">
+              <div className="relative mb-5" >
                 <input
                   type="password"
                   placeholder="Confirm your password"
@@ -146,7 +146,7 @@ export default function Signup() {
             <div className="text-center">
               <Link href="/login">
                 <span className="text-xs uppercase text-gray-500">
-                  Already user? LOGIN here
+                  Already user? <span className="text-blue-600">LOGIN here</span>
                 </span>
               </Link>
             </div>

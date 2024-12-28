@@ -1,13 +1,14 @@
 'use client';
 import React, { useState } from "react";
 import Image from "next/image";
-import loginImage from "../../../public/images/login.png";
+import loginImage from "@/../public/images/login.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import Header from "../../components/Header";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import dotenv from 'dotenv';
+dotenv.config();
 
 export default function Signin() {
   const [email, setEmail] = useState('');
@@ -15,17 +16,19 @@ export default function Signin() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(''); // Clear any previous errors
-
+    const host = process.env.BACKEND_HOST || 'http://localhost:8080';
+    console.log("Host:", host);
     try {
-      const result = await axios.post("http://localhost:8080/api/login", {
+      const result = await axios.post(`${host}/api/login`, {
         email,
         password,
       });
       console.log("Login successful:", result.data);
-      router.push("/userprofile"); // Navigate to user profile upon success
+      router.push("/home"); // Navigate to user profile upon success
     } catch (err) {
       console.error("Login error:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Failed to login. Please try again.");
@@ -33,10 +36,10 @@ export default function Signin() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-b from-[#EDF0FD] to-white">
-      <Header />
-      <div className="mt-8 flex justify-center m-10">
-        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex items-center p-8 mx-4">
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex items-center p-8 ">
           {/* Left Section with Image */}
           <div className="w-1/2 flex items-center justify-center">
             <Image src={loginImage} alt="Login" width={400} height={330} />
@@ -93,7 +96,7 @@ export default function Signin() {
             <div className="flex justify-center">
               <Link href="/register">
                 <span className="text-xs uppercase text-gray-500">
-                  New User? Signup
+                  New User? <span className="text-blue-600">Signup</span>
                 </span>
               </Link>
             </div>
@@ -101,5 +104,6 @@ export default function Signin() {
         </div>
       </div>
     </div>
+    </>
   );
 }

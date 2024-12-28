@@ -3,16 +3,15 @@ import Image from "next/image";
 import { Label} from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 export default function Home() {
   
   
   return (
-    <div>
-        <Header/>
-        <div className="grid grid-cols-[2fr_5fr] bg-white min-h-screen ">
+    <>
+    <div className="pt-20">
+        <div className="grid grid-cols-[2fr_5fr] bg-white">
         <Card className="bg-[#FAFAFA] w-[350px] mx-[30px] my-[30px]">
           <div>
             <Image
@@ -43,7 +42,7 @@ export default function Home() {
           </div>
         </Card>
         
-        <div  className="bg-white min-h-screen ">
+        <div  className="bg-white min-h-screen">
           <Card className="bg-[#FAFAFA] w-[1055px] mx-[30px] my-[30px]">
             <CardTitle className= "text-xl mx-[30px] my-[30px]">Account Info</CardTitle>
             <CardContent>
@@ -68,15 +67,14 @@ export default function Home() {
                 </div>
               </div>
             </CardContent>
-          
             <CardFooter className="flex justify-between">
               <Button className="w-[120px] h-[50px] px-5">Save</Button>
             </CardFooter>
           </Card>
-
         </div>
       </div>
-    </div>   
+    </div>  
+    </> 
     
   );
 }

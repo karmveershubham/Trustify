@@ -1,13 +1,15 @@
-// server.js
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import passport from 'passport';
+import cookieParser from  'cookie-parser'
 import authRoute from './routes/authRoutes.js';
-import loginsignup from './routes/loginsignupRoute.js'
-import './config/passport.js'; // Import passport configuration
-import * as driver from './neo4j/neo4j.js'; // Ensure your Neo4j driver is imported
+import googleAuthRoute from './routes/googleAuthRoute.js';
+import setTokensCookies from './utils/setTokenCookies.js';
+import './config/passport-google.js'; 
+import * as driver from './neo4j/neo4j.js'; 
+import connectDB from './config/connectdb.js'; 
 
 dotenv.config();
 const app = express();
@@ -15,13 +17,11 @@ const app = express();
 app.use(express.json());
 
 // Set up CORS
-
 app.use(cors({
-    origin: 'http://localhost:3000', // Allow your frontend
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Add allowed methods
-    credentials: true, // If cookies or authorization headers are involved
+    origin:  process.env.FRONTEND_HOST, 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    credentials: true, 
 }));
-
 
 // Express session middleware
 app.use(session({
@@ -31,13 +31,51 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+app.use(cookieParser());
+
 // Initialize passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Initialize Neo4j driver
+connectDB(process.env.NEO4J_URI, process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD);
+
 // Use routes
 app.use('/', authRoute);
-app.use('/api',loginsignup)
+
+app.use('/', googleAuthRoute);
+
+app.get('/auth/google',
+  passport.authenticate('google', { session: true, scope: ['profile', 'email', 'https://www.googleapis.com/auth/contacts.readonly']}));
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { session: true, failureRedirect: `${process.env.FRONTEND_HOST}/login` }),
+  (req, res) => {
+
+    // Access user object and tokens from req.user
+    const { user, accessToken, refreshToken, accessTokenExp, refreshTokenExp } = req.user;
+    setTokensCookies(res, accessToken, refreshToken, accessTokenExp, refreshTokenExp)
+
+    // Successful authentication, redirect home.
+    res.redirect(`${process.env.FRONTEND_HOST}/home`);
+});
+
+
+// Create a session for executing queries
+const sessiondb = driver.getDriver().session();
+
+//verify DB conncection
+app.get('/test', async (req, res) => {
+    try {
+        const result = await sessiondb.run('MATCH (n) RETURN n');
+        const nodes = result.records.map((record) => record.get(0).properties);
+        res.json(nodes);
+    } catch (error) {
+        console.error('Error querying Neo4j:', error);
+        res.status(500).send('Neo4j query failed');
+    }
+});
+
 // General error handler
 app.use((err, req, res, next) => {
     console.error("Unhandled error:", err);
@@ -47,33 +85,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Initialize Neo4j driver
-try {
-    await driver.initDriver(process.env.NEO4J_URI, process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD);
-    console.log('Connected to Neo4j');
-} catch (error) {
-    console.error('Error connecting to Neo4j:', error);
-    process.exit(1); // Exit the process if the connection fails
-}
-
-// Create a session for executing queries
-const sessiondb = driver.getDriver().session();
-app.get('/test', async (req, res) => {
-    try {
-        // Run a Neo4j query
-        const result = await sessiondb.run('MATCH (n) RETURN n');
-
-        // Extract and send the result data
-        const nodes = result.records.map((record) => record.get(0).properties);
-        res.json(nodes);
-    } catch (error) {
-        console.error('Error querying Neo4j:', error);
-        res.status(500).send('Neo4j query failed');
-    }
-});
-
 // Start the server
-const PORT = process.env.APP_PORT || 8080;
+const PORT = process.env.APP_PORT;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

@@ -1,14 +1,17 @@
-// routes/authRoutes.js
 import express from 'express';
-const router =express.Router();
-import { googleAuthCallback,googleAuth,logout,protectedRoute,googleAuthFailure, usercontact, registerController } from '../controllers/authController.js';
-import { isLoggedIn } from '../middlewares/authMiddleware.js';
+const router = express.Router();
+import passport from 'passport'
 
-router.get('/auth/google', googleAuth);
-router.get('/auth/google/callback', googleAuthCallback);
-router.get('/protected', isLoggedIn, protectedRoute);
-router.get('/contact', isLoggedIn, usercontact);
-router.get('/logout', logout);
-router.get('/google/failure', googleAuthFailure);
-//route for register
-export default router
+import { login, registerController } from '../controllers/authController.js';
+import { loginValidation, signupValidation } from '../middlewares/authMiddleware.js';
+import accessTokenAutoRefresh from '../middlewares/aceessTokenAutoRefresh.js';
+
+//public routes
+router.post('/api/signup/',signupValidation, registerController)
+router.post('/api/login',loginValidation, login)
+
+//protected Routes
+
+// router.get('api/me', accessTokenAutoRefresh, passport.authenticate('jwt', { session: false }), userProfile)
+
+export default router;
