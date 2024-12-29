@@ -3,19 +3,13 @@ import * as driver from '../neo4j/neo4j.js'; // Import Neo4j driver
 import '../config/passport-google.js'; // Import passport configuration
 import axios from 'axios';
 
-// export const googleAuth = passport.authenticate('google', { session:false, scope: ['profile', 'email', 'https://www.googleapis.com/auth/contacts.readonly']});
+export const googleAuth = passport.authenticate('google', { session:true, scope: ['profile', 'email', 'https://www.googleapis.com/auth/contacts.readonly']});
 
-// export const googleAuthCallback = passport.authenticate('google', {
-//   session:false,
-//   failureRedirect: `${process.env.FRONTEND_HOST}/account/login`},
-//   (req, res) => {
-//     // Access user object and tokens from req.user
-//     const { user, accessToken, refreshToken, accessTokenExp, refreshTokenExp } = req.user;
-//     setTokensCookies(res, accessToken, refreshToken, accessTokenExp, refreshTokenExp)
-
-//     // Successful authentication, redirect home.
-//     res.redirect(`${process.env.FRONTEND_HOST}/home`);
-// });
+export const googleAuthCallback = passport.authenticate('google', {
+  session:true,
+  successRedirect:`${process.env.FRONTEND_HOST}/home`,
+  failureRedirect: `${process.env.FRONTEND_HOST}/login`},
+);
 
 export const googleAuthFailure = (req, res) => {
   res.status(401).json({

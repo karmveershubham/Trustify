@@ -41,25 +41,9 @@ app.use(passport.session());
 connectDB(process.env.NEO4J_URI, process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD);
 
 // Use routes
-app.use('/', authRoute);
 
 app.use('/', googleAuthRoute);
-
-app.get('/auth/google',
-  passport.authenticate('google', { session: true, scope: ['profile', 'email', 'https://www.googleapis.com/auth/contacts.readonly']}));
-
-app.get('/auth/google/callback',
-  passport.authenticate('google', { session: true, failureRedirect: `${process.env.FRONTEND_HOST}/login` }),
-  (req, res) => {
-
-    // Access user object and tokens from req.user
-    const { user, accessToken, refreshToken, accessTokenExp, refreshTokenExp } = req.user;
-    setTokensCookies(res, accessToken, refreshToken, accessTokenExp, refreshTokenExp)
-
-    // Successful authentication, redirect home.
-    res.redirect(`${process.env.FRONTEND_HOST}/home`);
-});
-
+app.use('/api', authRoute);
 
 // Create a session for executing queries
 const sessiondb = driver.getDriver().session();

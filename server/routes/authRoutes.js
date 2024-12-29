@@ -7,8 +7,8 @@ import { loginValidation, signupValidation } from '../middlewares/authMiddleware
 import accessTokenAutoRefresh from '../middlewares/aceessTokenAutoRefresh.js';
 
 //public routes
-router.post('/api/signup/',signupValidation, registerController)
-router.post('/api/login',loginValidation, login)
+router.post('/signup/',signupValidation, registerController)
+router.post('/login',loginValidation, login)
 
 //protected Routes
 
