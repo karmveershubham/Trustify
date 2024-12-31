@@ -6,7 +6,7 @@ import passport from 'passport';
 import cookieParser from  'cookie-parser'
 import authRoute from './routes/authRoutes.js';
 import googleAuthRoute from './routes/googleAuthRoute.js';
-import setTokensCookies from './utils/setTokenCookies.js';
+import './config/passport-jwt.js'
 import './config/passport-google.js'; 
 import * as driver from './neo4j/neo4j.js'; 
 import connectDB from './config/connectdb.js'; 
@@ -43,7 +43,7 @@ connectDB(process.env.NEO4J_URI, process.env.NEO4J_USERNAME, process.env.NEO4J_P
 // Use routes
 
 app.use('/', googleAuthRoute);
-app.use('/api', authRoute);
+app.use('/api/user', authRoute);
 
 // Create a session for executing queries
 const sessiondb = driver.getDriver().session();

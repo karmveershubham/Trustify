@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from "react";
 import Image from "next/image";
 import loginImage from "@/../public/images/login.png";
@@ -6,37 +7,53 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import dotenv from 'dotenv';
-dotenv.config();
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLoginUserMutation } from "@/lib/services/auth"; 
+import { loginSchema } from "@/validation/schemas";
+
 
 export default function Signin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [serverErrorMessage, setServerErrorMessage] = useState("");
+  const [serverSuccessMessage, setServerSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [loginUser] = useLoginUserMutation();
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: zodResolver(loginSchema), // Use Zod validation schema
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(''); // Clear any previous errors
-    const host = process.env.BACKEND_HOST || 'http://localhost:8080';
-    console.log("Host:", host);
+  const onSubmit = async (values) => {
+    setLoading(true);
     try {
-      const result = await axios.post(`${host}/api/login`, {
-        email,
-        password,
-      });
-      console.log("Login successful:", result.data);
-      router.push("/home"); // Navigate to user profile upon success
-    } catch (err) {
-      console.error("Login error:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Failed to login. Please try again.");
+      const response = await loginUser(values);
+      if (response.data && response.data.status === "success") {
+        setServerSuccessMessage(response.data.message);
+        setServerErrorMessage("");
+        reset();
+        setLoading(false);
+        router.push("/home");
+      }
+       if (response.error && "data" in response.error && (response.error.data as any).status === "failed" ){
+        setServerErrorMessage(  (response.error.data as { message: string }).message );
+        setServerSuccessMessage("");
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
     }
   };
-
   return (
-    <>
     <div className="min-h-screen bg-gradient-to-b from-[#EDF0FD] to-white">
       <div className="flex justify-center items-center h-screen">
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex items-center p-8 ">
@@ -52,20 +69,21 @@ export default function Signin() {
               Login to Continue
             </p>
 
-            {/* Display Error */}
-            {error && <div className="text-red-500 text-sm">{error}</div>}
-
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Email Input */}
               <label className="text-sm text-black">Email Address</label>
               <input
                 type="email"
                 placeholder="Enter your email"
                 className="h-11 w-full border border-gray-300 rounded-lg px-3"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register("email")}
               />
+            
+              {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{String(errors.email.message)}</p>
+              )}
+            
 
               {/* Password Input */}
               <label className="text-sm text-black">Password</label>
@@ -74,21 +92,23 @@ export default function Signin() {
                   type="password"
                   placeholder="Enter your password"
                   className="h-11 w-full border border-gray-300 rounded-lg pl-10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password")}
                 />
                 <FontAwesomeIcon
                   icon={faLock}
                   className="w-[15.2px] h-[12px] absolute left-3 top-1/2 transform -translate-y-1/2"
                 />
               </div>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">{String(errors.password.message)}</p>
+              )}
 
               {/* Login Button */}
               <button
                 type="submit"
                 className="w-full h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 uppercase text-sm font-medium"
-              >
-                Login
+              disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
               </button>
             </form>
 
@@ -104,6 +124,5 @@ export default function Signin() {
         </div>
       </div>
     </div>
-    </>
   );
 }

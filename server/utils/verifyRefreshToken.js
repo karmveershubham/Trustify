@@ -1,13 +1,13 @@
 import jwt from "jsonwebtoken";
-import {createRefreshTokens, deleteRefreshToken }from "../models/UserRefreshToken.js";
+import { findRefreshToken }from "../models/UserRefreshToken.js";
+
 const verifyRefreshToken = async (refreshToken) => {
   try {
     const privateKey = process.env.JWT_REFRESH_TOKEN_SECRET_KEY;
 
-    // Find the refresh token document
-    const userRefreshToken = await UserRefreshTokenModel.findOne({ token: refreshToken });
-
-    // If refresh token not found, reject with an error
+    // Find the refresh token from db
+    const userRefreshToken = await findRefreshToken(refreshToken);
+ 
     if (!userRefreshToken) {
       throw { error: true, message: "Invalid refresh token" };
     }

@@ -9,10 +9,11 @@ var opts = {
 passport.use(new JwtStrategy(opts, async function (jwt_payload, done) {
   const session = driver.getDriver().session();
   try {
-    const user = await session.run(
+    const result = await session.run(
         'MATCH (u:User {id: $id}) RETURN u',
         { id: jwt_payload.id }
     );
+    const user = result.records.length ? result.records[0].get('u').properties :null ;
     if (user) {
       return done(null, user)
     } else {

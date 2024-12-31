@@ -1,6 +1,7 @@
 import * as driver from '../neo4j/neo4j.js'; 
 import setTokensCookies from '../utils/setTokenCookies.js';
 import generateTokens from '../utils/generatetokens.js';
+import refreshAccessToken from '../utils/refreshAcessToken.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid'; // For generating UUIDs
@@ -120,28 +121,53 @@ export const login = async (req, res) => {
 
 //Get new acess token or refresh token 
 
-// export const  getNewAccessToken = async (req, res) => {
-//     try {
-//       // Get new access token using Refresh Token
-//       const { newAccessToken, newRefreshToken, newAccessTokenExp, newRefreshTokenExp } = await refreshAccessToken(req, res)
+export const  getNewAccessToken = async (req, res) => {
+    try {
+      // Get new access token using Refresh Token
+      const { newAccessToken, newRefreshToken, newAccessTokenExp, newRefreshTokenExp } = await refreshAccessToken(req, res)
 
-//       // Set New Tokens to Cookie
-//       setTokensCookies(res, newAccessToken, newRefreshToken, newAccessTokenExp, newRefreshTokenExp)
+      // Set New Tokens to Cookie
+      setTokensCookies(res, newAccessToken, newRefreshToken, newAccessTokenExp, newRefreshTokenExp)
 
-//       res.status(200).send({
-//         status: "success",
-//         message: "New tokens generated",
-//         access_token: newAccessToken,
-//         refresh_token: newRefreshToken,
-//         access_token_exp: newAccessTokenExp
-//       });
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ status: "failed", message: "Unable to generate new token, please try again later" });
-//     }
-//   }
+      res.status(200).send({
+        status: "success",
+        message: "New tokens generated",
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken,
+        access_token_exp: newAccessTokenExp
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ status: "failed", message: "Unable to generate new token, please try again later" });
+    }
+  }
 
-//     // Profile OR Logged in User
-// export const userProfile = async (req, res) => {
-//     res.send({ "user": req.user })
-// }
+    // Profile OR Logged in User
+export const userProfile = async (req, res) => {
+    res.send({ "user": req.user })
+}
+
+
+  //logout
+export const userLogout = async (req, res) => {
+  try {
+
+    // Optionally, you can blacklist the refresh token in the database
+    // const refreshToken = req.cookies.refreshToken;
+    // await UserRefreshTokenModel.findOneAndUpdate(
+    //   { token: refreshToken },
+    //   { $set: { blacklisted: true } }
+    // );
+
+    //clear access token and refresh token cookies
+    res.clearCookie('accesToken');
+    res.clearCookie('refreshToken');
+    res.clearCookie('is_auth');
+
+    res.status(200).json({ status: "success", message: "Logout successful" });
+    
+  }catch(error){
+    console.error(error);
+    res.status(500).json({ status: "failed", message: "Unable to logout, please try again later" });
+  }
+}

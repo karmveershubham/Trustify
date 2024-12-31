@@ -37,3 +37,18 @@ export const createUser = async (id,name,email,password) => {
   }
 };
 
+//find user by id
+export async function findUserById(userId) {
+  const session = driver.getDriver().session();
+  try {
+    const result = await session.run(
+      `MATCH (u:User {id: $userId}) RETURN u`,
+      { userId } // Passing the userId as a parameter
+    );
+    // Check if the user exists
+    return result.records.length ? result.records[0].get('u').properties : null;
+  } finally {
+    // Close the session
+    await session.close();
+  }
+}

@@ -3,10 +3,10 @@ import * as driver from '../neo4j/neo4j.js'; // Import Neo4j driver
 import '../config/passport-google.js'; // Import passport configuration
 import axios from 'axios';
 
-export const googleAuth = passport.authenticate('google', { session:true, scope: ['profile', 'email', 'https://www.googleapis.com/auth/contacts.readonly']});
+export const googleAuth = passport.authenticate('google', { session:false, scope: ['profile', 'email', 'https://www.googleapis.com/auth/contacts.readonly']});
 
 export const googleAuthCallback = passport.authenticate('google', {
-  session:true,
+  session:false,
   successRedirect:`${process.env.FRONTEND_HOST}/home`,
   failureRedirect: `${process.env.FRONTEND_HOST}/login`},
 );

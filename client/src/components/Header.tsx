@@ -3,21 +3,29 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "../../public/icons/Preview.png";
-import { useAuth } from "@/hooks/useAuth"; // Custom hook for auth state
 import profileImage from "../../public/images/profile.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from 'react'
+import { useGetUserQuery } from "@/lib/services/auth";
+
+interface User { name: string; }
 
 const Header = () => {
-  // const { user, logout } = useAuth(); // Assuming `useAuth` provides user and logout function
-  const user=false;   
+  const [user, setUser] = useState<User | null>(null)
+  const { data, isSuccess } = useGetUserQuery(null);
+  useEffect(() => {
+    if (data && isSuccess) {
+      setUser(data.user)
+    }
+  }, [data, isSuccess]);
 
   return (
     <>
     <div className=" fixed z-10 w-full ">
       <header className="top-0 left-0 bg-[#EDF0FD] bg-opacity-10   backdrop-blur-2xl flex justify-around items-center pt-4 bg-transparent mb-5">
         <div className="flex items-center">
-          <Link href='/'>
+          <Link href='/home'>
             <Image src={logo} alt="Logo" width={48} height={60} />
           </Link>
           <h1 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 ml-3 p-2 bg-transparent rounded-sm">
@@ -56,6 +64,7 @@ const Header = () => {
                 Sell 
             </Link>
             <span className="material-icons text-xl text-gray-600 cursor-pointer"><FontAwesomeIcon icon={faCartShopping} /></span>
+            <Link href="/user/profile">
             <div className="flex items-center space-x-2">
               <Image
                 // src={user.profileImage || {profileImage}}
@@ -66,8 +75,9 @@ const Header = () => {
                 className="rounded-full"
               />
               {/* <span className="text-gray-800 font-medium">{user.name}</span> */}
-              <span className="text-gray-800 font-medium">User</span>
+              <span className="text-gray-800 font-medium">{user?.name}</span>
             </div>
+            </Link>
           </div>
         ):
 

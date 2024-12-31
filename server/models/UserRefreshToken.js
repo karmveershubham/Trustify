@@ -48,5 +48,43 @@ export async function deleteRefreshToken(userId) {
   }
 }
 
+export async function findRefreshToken(refreshToken) {
+    // console.log(refreshToken);
+    const session = driver.getDriver().session();
+    try {
+        const result = await session.run(
+            `MATCH (rt:RefreshToken {token: $refreshToken})
+             RETURN rt`,
+            {refreshToken}
+        );
+        // console.log(result.records)
+        return result.records.length ? result.records : null;
 
+    } catch (error) {
+        console.error('Error accessing refresh token:', error);
+    } finally {
+        await session.close();
+    }
+}
+
+//get refresh token by user ID
+export async function getRefreshTokenbyUId(userId) {
+  console.log('uid',userId);
+  const session = driver.getDriver().session();
+
+  try {
+    const result = await session.run(
+      `MATCH (u:User {id: $userId})-[:HAS_REFRESH_TOKEN]->(t:RefreshToken)
+      RETURN t.token AS refreshToken
+    `, { userId }
+    );
+
+    return result.records.length ? result.records[0].get('refreshToken') : null;
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
+  } finally {
+    await session.close();
+  }
+}
 // export default createRefreshTokens;
