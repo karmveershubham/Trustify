@@ -11,7 +11,7 @@ export const signupValidation = (req, res, next) => {
     signupSchema.parse(req.body);
     next();
   } catch (error) {
-    res.status(400).json({ errors: error.errors });
+    res.status(400).json({ errors: error.errors[0] });
   }
 };
 
@@ -21,7 +21,7 @@ export const loginValidation = (req, res, next) => {
     loginSchema.parse(req.body); 
     next();
   } catch (error) {
-    res.status(400).json({ errors: error.errors });
+    res.status(400).json({ errors: error.errors[0] });
   }
 };
 

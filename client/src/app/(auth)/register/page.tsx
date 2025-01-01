@@ -38,7 +38,8 @@ export default function Signup() {
     window.location.href = "http://localhost:8080/auth/google";
   };
 
-  const onSubmit = async (values, action) => {
+  const onSubmit = async (values) => {
+    console.log(values);
     setLoading(true);
     try {
       const response = await registerUser(values);
@@ -46,11 +47,11 @@ export default function Signup() {
       if (response.data && response.data.status === "success") {
         setServerSuccessMessage(response.data.message);
         setServerErrorMessage("");
-        action.reset();
+        reset();
         setLoading(false);
         router.push("/login");
       }
-      if (response.error && "data" in response.error && (response.error.data as any).status === "failed" ){
+      if (response.error && "data" in response.error && (response.error.data as any ).status === "failed" ){
         setServerErrorMessage(  (response.error.data as { message: string }).message );
         setServerSuccessMessage("");
         setLoading(false);
@@ -75,6 +76,7 @@ export default function Signup() {
             <h3 className="text-2xl font-bold text-black">Register</h3>
             <p className="text-sm uppercase tracking-wide text-gray-500">Join us</p>
 
+            {serverSuccessMessage && <div className="text-sm text-green-500 font-semibold px-2 text-center">{serverSuccessMessage}</div>}
             {serverErrorMessage && <div className="text-red-500 text-sm">{serverErrorMessage}</div>}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

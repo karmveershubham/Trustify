@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginUserMutation } from "@/lib/services/auth"; 
 import { loginSchema } from "@/validation/schemas";
+import {z} from 'zod';
 
 
 export default function Signin() {
@@ -20,12 +21,13 @@ export default function Signin() {
   const router = useRouter();
   const [loginUser] = useLoginUserMutation();
 
+  type FormFields=z.infer<typeof loginSchema>;
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors},
     reset,
-  } = useForm({
+  } = useForm<FormFields>({
     resolver: zodResolver(loginSchema), // Use Zod validation schema
     defaultValues: {
       email: "",
@@ -69,6 +71,9 @@ export default function Signin() {
               Login to Continue
             </p>
 
+            {serverSuccessMessage && <div className="text-sm text-green-500 font-semibold px-2 text-center">{serverSuccessMessage}</div>}
+            {serverErrorMessage && <div className="text-red-500 text-sm">{serverErrorMessage}</div>}
+
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Email Input */}
@@ -81,9 +86,8 @@ export default function Signin() {
               />
             
               {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{String(errors.email.message)}</p>
+                <p className="text-red-500 text-xs mt-1">{String(errors.email.message)}</p>
               )}
-            
 
               {/* Password Input */}
               <label className="text-sm text-black">Password</label>
