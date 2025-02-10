@@ -27,19 +27,6 @@ const signupSchema = z
   });
 
 // Middleware for signup validation
-export const signupValidation = (req, res, next) => {
-  try {
-    signupSchema.parse(req.body); // Validates the request body
-    next(); // If validation passes, proceed to the next middleware or route handler
-  } catch (error) {
-    return res.status(400).json({
-      errors: error.errors.map((err) => ({
-        path: err.path, // Specifies the field with the error
-        message: err.message, // Error message
-      })),
-    });
-  }
-};
 
 // Zod schema for login validation
 const loginSchema = z.object({
@@ -67,4 +54,4 @@ export const loginValidation = (req, res, next) => {
 };
 
 // Exporting the modules
-export default { isLoggedIn, signupValidation, loginValidation };
+export default { loginValidation };

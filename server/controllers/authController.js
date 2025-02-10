@@ -1,55 +1,11 @@
-import passport from 'passport';
+
 import * as driver from '../neo4j/neo4j.js'; // Import Neo4j driver
-import '../config/passport.js'; // Import passport configuration
+
 import axios from 'axios';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid'; // For generating UUIDs
 import jwt from 'jsonwebtoken';
 
-export const googleAuth = passport.authenticate('google', { scope: ['profile', 'email', 'https://www.googleapis.com/auth/contacts.readonly'] });
-
-export const googleAuthCallback = passport.authenticate('google', {
-  successRedirect: '/protected',
-  failureRedirect: '/auth/google/failure',
-});
-
-export const googleAuthFailure = (req, res) => {
-  res.status(401).json({
-    message: 'Authentication failed!',
-  });
-};
-
-export const protectedRoute = async (req, res) => {
-  if (req.user) {
-    const { displayName, email } = req.user.profile;
-    console.log(req.user);
-
-    const session = driver.getDriver().session(); // Create a new session
-    try {
-      // Save or update user data in Neo4j
-      await session.run(
-        'MERGE (u:User {id: $id}) ' +
-        'SET u.name = $name, u.email = $email',
-        {
-          id: req.user.profile.id, // User ID from Google profile
-          name: displayName,
-          email: email
-        }
-      );
-
-      res.json({
-        message: `Hello ${displayName}, your email is ${email}`
-      });
-    } catch (error) {
-      console.error('Error saving user to Neo4j:', error);
-      res.status(500).send('Error saving user data');
-    } finally {
-      session.close(); // Always close the session after use
-    }
-  } else {
-    res.status(401).send('Unauthorized');
-  }
-};
 
 export const logout = (req, res) => {
   req.logout((err) => {
@@ -115,49 +71,6 @@ export const usercontact = async (req, res) => {
   } catch (error) {
     console.error('Error fetching contacts:', error);
     res.status(500).json({ message: 'Failed to fetch contacts' });
-  }
-};
-
-export const registerController = async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
-
-  // Check if all required fields are provided
-  if (!name || !email || !password || !confirmPassword) {
-    return res.status(400).json({ message: 'Name, email, password, and confirmPassword are required' });
-  }
-
-  // Check if passwords match
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: 'Passwords do not match' });
-  }
-
-  const session = driver.getDriver().session(); // Create a new session for Neo4j queries
-  try {
-    // Check if user already exists
-    const result = await session.run(
-      'MATCH (u:User {email: $email}) RETURN u',
-      { email }
-    );
-
-    if (result.records.length > 0) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    // Hash the password before storing it
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create the new user in the database
-    await session.run(
-      'CREATE (u:User {id: $id, name: $name, email: $email, password: $password})',
-      { id: uuidv4(), name, email, password: hashedPassword }
-    );
-
-    res.status(201).json({ message: 'User registered successfully'});
-  } catch (error) {
-    console.error('Error during registration:', error);
-    res.status(500).json({ message: 'Error registering user' });
-  } finally {
-    session.close(); // Close the session after use
   }
 };
 

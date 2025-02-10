@@ -1,26 +1,31 @@
-// server/neo4j/neo4j.js
 import neo4j from 'neo4j-driver';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config();
 
 let driver;
 
 export async function initDriver() {
-  const uri = process.env.NEO4J_URI;
-  const username = process.env.NEO4J_USERNAME;
-  const password = process.env.NEO4J_PASSWORD;
+    const uri = process.env.NEO4J_URI;
+    const username = process.env.NEO4J_USERNAME;
+    const password = process.env.NEO4J_PASSWORD;
 
-  driver = neo4j.driver(uri, neo4j.auth.basic(username, password));
-  await driver.verifyConnectivity();
+    console.log(`🔍 Connecting to Neo4j at ${uri} with user ${username}`);
+
+    driver = neo4j.driver(uri, neo4j.auth.basic(username, password));
+
+    try {
+        await driver.verifyConnectivity();
+        console.log("✅ Successfully connected to Neo4j");
+    } catch (error) {
+        console.error("❌ Neo4j Connection Error:", error);
+        throw error;
+    }
 }
 
 export function getDriver() {
-  return driver;
-}
-
-export async function closeDriver() {
-  if (driver) {
-    await driver.close();
-  }
+    if (!driver) {
+        throw new Error("❌ Neo4j driver has not been initialized. Call initDriver() first.");
+    }
+    return driver;
 }
