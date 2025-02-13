@@ -1,32 +1,22 @@
 import { z } from "zod";
+import jwt from "jsonwebtoken";
+
 
 // Middleware to check if a user is logged in
-export const isLoggedIn = (req, res, next) => {
-  req.user ? next() : res.sendStatus(401); // Respond with 401 Unauthorized if not logged in
+export const isAuthenticated = (req, res, next) => {
+    const token = req.header("Authorization");
+    if (!token) return res.status(401).json({ error: "Access denied" });
+
+    try {
+        const decoded = jwt.verify(token, env.process.JWT_SECRET); // Use your secret key
+        req.user = decoded; // Attach user info to request
+        next();
+    } catch (error) {
+        res.status(400).json({ error: "Invalid token" });
+    }
 };
 
-// Zod schema for signup validation
-const signupSchema = z
-  .object({
-    name: z
-      .string()
-      .min(2, { message: "Name must be at least 2 characters long" })
-      .max(50, { message: "Name cannot exceed 50 characters" }),
-    email: z
-      .string()
-      .email({ message: "Invalid email address" }),
-    password: z
-      .string()
-      .min(6, { message: "Password must be at least 6 characters long" })
-      .max(100, { message: "Password cannot exceed 100 characters" }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ["confirmPassword"], // Pinpoints the confirmPassword field for the error
-    message: "Passwords do not match",
-  });
 
-// Middleware for signup validation
 
 // Zod schema for login validation
 const loginSchema = z.object({
@@ -54,4 +44,4 @@ export const loginValidation = (req, res, next) => {
 };
 
 // Exporting the modules
-export default { loginValidation };
+export default { loginValidation, isAuthenticated };
