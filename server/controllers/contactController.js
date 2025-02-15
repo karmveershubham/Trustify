@@ -3,7 +3,6 @@ import { isAuthenticated } from '../middlewares/authMiddleware.js';
 import express from "express";
 const router = express.Router();
 
-// router.get("/contacts", isAuthenticated, async (req, res) => {  //use it later
 export const getContacts = async (req, res) => {
     const session = driver.getDriver().session();
     try {
@@ -18,7 +17,7 @@ export const getContacts = async (req, res) => {
         const result = await session.run(query, { email: userEmail });
 
         if (result.records.length === 0) {
-            return res.status(404).json({ error: "User not found" });
+            return res.status(404).json({ status: "failed", message: "User not found" });
         }
 
         const contacts = result.records[0].get('contacts'); // Extract contacts array
@@ -26,7 +25,7 @@ export const getContacts = async (req, res) => {
         res.json({ contacts });
     } catch (error) {
         console.error("Error fetching contacts:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({status: "failed", message: "Internal Server Error" });
     } finally {
         await session.close();
     }

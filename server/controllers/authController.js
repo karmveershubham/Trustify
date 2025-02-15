@@ -4,19 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 
-export const logout = (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.error('Error', err);
-      res.status(500).send('Error');
-    }
-    req.session.destroy((err) => {
-      res.redirect('http://localhost:3000');
-    });
-  });
-};
-
-
+//login
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -45,16 +33,69 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Generate JWT token    //later MAKE IT ASYNC 
     const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn: '1d',
     });
 
-    res.status(200).json({ message: 'Login successful', token ,name:user.name,email});
+    //set cookies
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.JWT_SECRET, // Use secure cookies in production
+        maxAge: 1 * 24 * 60 * 59 * 1000, // 1 day
+    });
+
+    res.cookie('is_auth', true, {
+      httpOnly: false,
+      secure: false, 
+      maxAge: 1 * 24 * 60 * 59 * 1000, // 1 day
+    });
+    
+    res.status(200).json({
+        user: { id: user.id, email: user.email, name: user.name},
+        status: "success",
+        message: "Login successful",
+        token: token,
+        is_auth: true
+      }); 
+
+    console.log("User login succesful")
+
+      
   } catch (error) {
     console.error('Error during login:', error);
-    res.status(500).json({ message: 'Error logging in' });
+    res.status(500).json({ status: "failed", message: "Unable to login, please try again later" });
   } finally {
     session.close(); // Close the session after use
   }
+};
+
+//profile
+export const userProfile = async (req, res) => {
+  if (!req.user) {
+    res.status(401).send({ message: 'Unauthorized' });
+    return;
+  }
+  console.log(req.user);
+  res.send({ "user": req.user })
+};
+
+
+//logout
+export const logout = (req, res) => {
+  try{
+    if(req.body){
+      console.log(body);
+    }
+    res.clearCookie("token");
+    res.clearCookie("is_auth");
+    res.status(200).json({ 
+      status: "success", 
+      message: "Logged out successfully", 
+      redirectTo: "/" 
+    });
+  }catch(error){
+    console.error(error);
+    res.status(500).json({ status: "failed", message: "Unable to logout, please try again later" });
+    }
 };
