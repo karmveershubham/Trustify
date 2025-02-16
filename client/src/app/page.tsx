@@ -1,9 +1,9 @@
 import Link from "next/link"
-import HeroSection from "../components/HeroSection"
-import AboutUs from '../components/AboutUs';
-import TrustSection from '../components/TrustSection';
-import Testimonials from '../components/Testimonials';
-import Subscribe from '../components/Subscribe';
+import HeroSection from "../components/landing/HeroSection"
+import AboutUs from '../components/landing/AboutUs';
+import TrustSection from '../components/landing/TrustSection';
+import Testimonials from '../components/landing/Testimonials';
+import Subscribe from '../components/landing/Subscribe';
 import Footer from '../components/Footer';
 const page = () => {
   return (
@@ -13,14 +13,8 @@ const page = () => {
       <TrustSection />
       <Testimonials />
       <Subscribe/>
-      <Footer />
     </div>
   )
 }
 
 export default page;
-
-
-
-
-

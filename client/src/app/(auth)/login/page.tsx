@@ -1,31 +1,29 @@
 'use client';
 import React, { useState } from "react";
+import { useAuth } from '@/context/AuthContext';
 import Image from "next/image";
-import loginImage from "../../../public/images/login.png";
+import loginImage from "@/../public/images/login.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import Header from "../../components/Header";
+import Header from "../../../components/Header";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+
+const API_URL="http://localhost:8080"   //replace by env
 
 export default function Signin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const {login, isLoading } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Clear any previous errors
-
+    setError('');
     try {
-      const result = await axios.post("http://localhost:8080/api/login", {
-        email,
-        password,
-      });
-      console.log("Login successful:", result.data);
-      router.push("/userprofile"); // Navigate to user profile upon success
+      await login(email, password);
+      router.push('/profile');
     } catch (err) {
       console.error("Login error:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Failed to login. Please try again.");
@@ -82,10 +80,10 @@ export default function Signin() {
 
               {/* Login Button */}
               <button
-                type="submit"
+                type="submit" 
                 className="w-full h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 uppercase text-sm font-medium"
-              >
-                Login
+                disabled={isLoading}>
+                  {isLoading ? "Logging in..." : "Login"}
               </button>
             </form>
 

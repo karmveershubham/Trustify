@@ -5,7 +5,7 @@ import about from '@/../../client/public/images/About.png'
 export default function AboutUs() {
   return (
     <section id="about" className="w-full py-16 px-8 bg-gradient-to-b from-white to-blue-100">
-      <div className="flex flex-col md:flex-row items-center mt-12 lg:mt-16 px-4 sm:px-12 lg:px-16">
+      <div className="flex flex-col md:flex-row items-center mt-12 lg:mt-16 px-4 sm:px-12 lg:px-16 bg-bl">
      
         <div className="md:w-1/2 mb-8 md:mb-0">
          <div className="relative flex size-full max-w-lg items-center justify-center overflow-hidden ">

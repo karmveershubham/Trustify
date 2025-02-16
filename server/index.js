@@ -2,9 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import session from 'express-session';
-import passport from 'passport';
 import cookieParser from 'cookie-parser';
-import authRoute from './routes/loginsignupRoute.js';
+import authRoute from './routes/authRoutes.js';
+import listingRoute from './routes/ListingRoute.js';
+import contactsRoute from './routes/contactsRoute.js';
 import { initDriver, getDriver } from './neo4j/neo4j.js';
 
 dotenv.config();
@@ -19,22 +20,12 @@ app.use(cors({
     credentials: true,
 }));
 
-// Express session middleware
-app.use(session({
-    secret: process.env.SECRET_KEY,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
-}));
-
 app.use(cookieParser());
-
-// Initialize passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Use routes
 app.use('/api', authRoute);
+app.use('/api/listings', listingRoute);
+app.use('/api/', contactsRoute);
 
 async function startServer() {
     try {

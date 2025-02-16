@@ -1,10 +1,13 @@
 // routes/authRoutes.js
 import express from 'express';
 const router =express.Router();
+import { login , logout} from '../controllers/authController.js';
+import { isAuthenticated, loginValidation } from '../middlewares/authMiddleware.js';
 
+//const router =express.Router();
 
+router.post('/login',loginValidation,login)
 
-router.get('/logout', logout);
+router.post('/logout', isAuthenticated ,logout);
 
-//route for register
-export default router
+export default router;
