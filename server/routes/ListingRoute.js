@@ -4,8 +4,7 @@ import upload from '../middlewares/uploadImage.js';
 
 const router = express.Router();
 
-// Route for adding a product with an image
-router.post('/add', upload.single('image'), addProduct);
-router.get('/all', getProducts);
+router.post('/add-product', upload.single('image'), addProduct);
+router.get('/products', getProducts);
 
 export default router;
