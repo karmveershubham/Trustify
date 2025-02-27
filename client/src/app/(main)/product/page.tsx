@@ -26,7 +26,7 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/listings/all`, {
+        const response = await fetch(`${API_URL}/api/listings/products`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
