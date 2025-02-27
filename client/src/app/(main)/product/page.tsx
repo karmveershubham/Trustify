@@ -1,109 +1,144 @@
 "use client";
 
-import React, { useState } from 'react';
-import Header from '@/components/Header';
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import ProductCard from "@/components/ProductCard";
+import { motion } from "framer-motion";
 
-function Home() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  purchasedDate: string;
+  category: string;
+  price: number;
+  image: string;
+}
 
-  const cardData = [
-    { id: 1, imageSrc: "/images/card1.jpg", title: "Product 1", category: "electronics" },
-    { id: 2, imageSrc: "/images/card2.jpg", title: "Product 2", category: "clothing" },
-    { id: 3, imageSrc: "/images/card3.jpg", title: "Product 3", category: "electronics" },
-    { id: 4, imageSrc: "/images/card1.jpg", title: "Product 4", category: "furniture" },
-    { id: 5, imageSrc: "/images/card2.jpg", title: "Product 5", category: "clothing" },
-    { id: 6, imageSrc: "/images/card3.jpg", title: "Product 6", category: "furniture" },
-    { id: 7, imageSrc: "/images/card1.jpg", title: "Product 7", category: "electronics" },
-    { id: 8, imageSrc: "/images/card2.jpg", title: "Product 8", category: "clothing" },
-    { id: 9, imageSrc: "/images/card3.jpg", title: "Product 9", category: "furniture" },
-  ];
+export default function ProductPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [sortOption, setSortOption] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const API_URL = "http://localhost:8080";
 
-  // Filter cards based on the selected category
-  const filteredCards =
-    selectedCategory === "all"
-      ? cardData
-      : cardData.filter((card) => card.category === selectedCategory);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/listings/all`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+
+        const data: { products: Product[] } = await response.json();
+        setProducts(data.products);
+        setFilteredProducts(data.products);
+
+        // Extract unique categories
+        const uniqueCategories: string[] = ["All", ...Array.from(new Set(data.products.map((p) => p.category)))];
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Filtering function
+  const handleFilter = (category: string) => {
+    setSelectedCategory(category);
+    setFilteredProducts(category === "All" ? products : products.filter((p) => p.category === category));
+  };
+
+  // Sorting function
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortOption === "priceLow") return a.price - b.price;
+    if (sortOption === "priceHigh") return b.price - a.price;
+    if (sortOption === "dateNew") return new Date(b.purchasedDate).getTime() - new Date(a.purchasedDate).getTime();
+    if (sortOption === "dateOld") return new Date(a.purchasedDate).getTime() - new Date(b.purchasedDate).getTime();
+    return 0;
+  });
+
+
+  if (loading) return <div className="text-center mt-10">Loading products...</div>;
 
   return (
-    <div>
-      <Header />
-      <div className="flex p-20">
-        {/* Sidebar */}
-        <div className="w-1/4 border-r p-4">
-          <h2 className="font-semibold mb-4">Filter by Category</h2>
-          <div>
-            <div className="mb-2">
-              <input
-                type="radio"
-                id="all"
-                name="category"
-                value="all"
-                checked={selectedCategory === "all"}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="mr-2"
-              />
-              <label htmlFor="all">All</label>
-            </div>
-            <div className="mb-2">
-              <input
-                type="radio"
-                id="electronics"
-                name="category"
-                value="electronics"
-                checked={selectedCategory === "electronics"}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="mr-2"
-              />
-              <label htmlFor="electronics">Electronics</label>
-            </div>
-            <div className="mb-2">
-              <input
-                type="radio"
-                id="clothing"
-                name="category"
-                value="clothing"
-                checked={selectedCategory === "clothing"}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="mr-2"
-              />
-              <label htmlFor="clothing">Clothing</label>
-            </div>
-            <div className="mb-2">
-              <input
-                type="radio"
-                id="furniture"
-                name="category"
-                value="furniture"
-                checked={selectedCategory === "furniture"}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="mr-2"
-              />
-              <label htmlFor="furniture">Furniture</label>
-            </div>
+    <div className="min-h-screen">
+      <h1 className="text-3xl font-semibold text-center mt-20 mb-6">Products</h1>
+      <div className="flex">
+      <div className="w-1/4 p-6 ">
+         {/* Sidebar */}
+        <motion.div
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className=" bg-white p-6 rounded-lg"
+        >
+          <h2 className="text-xl font-bold mb-4">Filters</h2>
+
+          {/* Category Filter */}
+          <div className="mb-4">
+            <h3 className="text-lg font-medium mb-2">Category</h3>
+            <ul>
+              {categories.map((category) => (
+                <li
+                  key={category}
+                  onClick={() => handleFilter(category)}
+                  className={`cursor-pointer p-2 rounded-md transition-all ${
+                    selectedCategory === category ? "bg-blue-500 text-white" : "hover:bg-gray-300"
+                  }`}
+                >
+                  {category}
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+
+          {/* Sorting Options */}
+          <div>
+            <h3 className="text-lg font-medium mb-2">Sort By</h3>
+            <select
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 transition"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              <option value="">Select...</option>
+              <option value="priceLow">Price: Low to High</option>
+              <option value="priceHigh">Price: High to Low</option>
+              <option value="dateNew">Newest First</option>
+              <option value="dateOld">Oldest First</option>
+            </select>
+          </div>
+        </motion.div>
+      </div>
+
+      <div className="container mx-auto p-6 flex gap-6">
 
         {/* Product Grid */}
-        <div className="w-3/4 grid grid-cols-3 gap-4 p-4">
-          {filteredCards.map((card) => (
-            <div
-              key={card.id}
-              className="border rounded-lg shadow-md p-4 flex flex-col items-center justify-center"
-            >
-              <img
-                src={card.imageSrc}
-                alt={card.title}
-                className="mb-4 rounded-md object-cover w-full h-48"
-              />
-              <p className="mb-2 font-semibold">{card.title}</p>
-              <Button>Add to Cart</Button>
-            </div>
-          ))}
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className=" w- 3/4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        >
+          {sortedProducts.length > 0 ? (
+            sortedProducts.map((product) => <ProductCard key={product.id} product={product} />)
+          ) : (
+            <p>No products available</p>
+          )}
+        </motion.div>
       </div>
+    </div>
+
     </div>
   );
 }
-
-export default Home;

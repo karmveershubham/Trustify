@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 // Use routes
 app.use('/api', authRoute);
-app.use('/api/listings', listingRoute);
+app.use('/api/listings/', listingRoute);
 app.use('/api/', contactsRoute);
 
 async function startServer() {
