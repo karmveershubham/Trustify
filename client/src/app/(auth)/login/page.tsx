@@ -6,7 +6,6 @@ import loginImage from "@/../public/images/login.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-import Header from "../../../components/Header";
 import { useRouter } from "next/navigation";
 
 const API_URL="http://localhost:8080"   //replace by env
@@ -32,7 +31,6 @@ export default function Signin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#EDF0FD] to-white">
-      <Header />
       <div className="mt-8 flex justify-center m-10">
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex items-center p-8 mx-4">
           {/* Left Section with Image */}
