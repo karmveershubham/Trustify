@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Label} from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
+import Header from "@/components/layout/Header";
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -34,7 +34,7 @@ export default function Profile() {
 
   return (
     <div>
-        <Header/>
+        <Header />
         <div className="grid grid-cols-[2fr_5fr] bg-white min-h-screen ">
         <Card className="bg-[#FAFAFA] w-[350px] mx-[30px] my-[30px]">
           <div>
