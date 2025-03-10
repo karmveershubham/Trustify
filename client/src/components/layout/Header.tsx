@@ -36,6 +36,9 @@ export default function Header() {
           <Link href="#faq" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
             FAQs
           </Link>
+          <Link href="#downloadapp" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+            Download App
+          </Link>
         </nav>
       )}
 

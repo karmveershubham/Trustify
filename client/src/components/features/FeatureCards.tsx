@@ -10,7 +10,7 @@ export default function FeaturedCards() {
       <section className="container mx-auto px-6 py-10">
         <div className="grid md:grid-cols-3 gap-4">
           {/* Card 1 */}
-          <Card className="border-0 shadow-sm max-w-xs mx-auto w-full transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up">
+          <Card className="border-2 shadow-sm max-w-xs mx-auto w-full transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up">
             <CardContent className="p-4 text-center">
               <h3 className="text-lg font-bold mb-1">Buy Safely</h3>
               <p className="text-gray-600 mb-4 text-sm">
@@ -29,7 +29,7 @@ export default function FeaturedCards() {
           </Card>
 
           {/* Card 2 */}
-          <Card className="border-0 shadow-sm max-w-xs mx-auto w-full transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up" style={{ animationDelay: '200ms' }}>
+          <Card className="border-2 shadow-sm max-w-xs mx-auto w-[90%] transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up" style={{ animationDelay: '200ms' }}>
             <CardContent className="p-4 text-center">
               <h3 className="text-lg font-bold mb-1">Sell Easily</h3>
               <p className="text-gray-600 mb-4 text-sm">
@@ -48,7 +48,7 @@ export default function FeaturedCards() {
           </Card>
 
           {/* Card 3 */}
-          <Card className="border-0 shadow-sm max-w-xs mx-auto w-full transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up" style={{ animationDelay: '400ms' }}>
+          <Card className="border-2 shadow-sm max-w-xs mx-auto w-full transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up" style={{ animationDelay: '400ms' }}>
             <CardContent className="p-4 text-center">
               <h3 className="text-lg font-bold mb-1">Build Trust</h3>
               <p className="text-gray-600 mb-4 text-sm">

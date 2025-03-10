@@ -267,9 +267,6 @@ body {
   animation: bounceSlow 1.5s infinite;
 }
 
-/* global.css */
-
-/* Section animations */
 .about-section {
   @apply container mx-auto px-4 py-16 overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl my-8;
 }
@@ -365,4 +362,43 @@ body {
   transform: rotate(180deg);
 }
 
+/* Section Styling */
+.download-section {
+  background-color: #FEFBEF;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  border: 3px #FFA500;
+  border-radius: 12px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 1s ease-out;
+}
+
+/* Button Animation */
+.download-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #FFA500;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: #ff8c00;
+  transform: scale(1.1);
+}
+
+/* Image Styling */
+.download-image {
+  display: inline-block;
+  margin-top: 1rem;
+  /* box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15); */
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.download-image:hover {
+  transform: scale(1.05);
+}
 

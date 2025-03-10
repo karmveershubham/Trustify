@@ -8,6 +8,7 @@ import AboutSection from '../components/about/AboutSection';
 import FaqSection from '../components/faq/FaqSection';
 import FeatureCards from '../components/features/FeatureCards';
 import FeatureDetails from '../components/features/FeatureDetails';
+import DownloadApp from '@/components/downloadapp/DownloadApp';
 
 export default function Home() {
   const [isLoaded] = useState(true); // No useEffect
@@ -40,13 +41,17 @@ export default function Home() {
       
       <div id="features" ref={featuresRef}>
         <FeatureCards />
-        <FeatureDetails />
+        {/* <FeatureDetails /> */}
       </div>
       
       <div id="about" ref={aboutRef}>
         <AboutSection />
       </div>
-      
+
+      <div id="downloadapp">
+        <DownloadApp />  
+      </div>  
+
       <div id="faq" ref={faqRef}>
         <FaqSection />
       </div>
