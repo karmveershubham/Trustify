@@ -47,7 +47,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/components/LoginCard.tsx"
-  ],
+, "src/components/features/FeatureCards.tsx"  ],
   "exclude": [
     "node_modules"
   ]
