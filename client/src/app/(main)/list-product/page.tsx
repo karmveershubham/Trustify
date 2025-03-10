@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Header from "@/components/Header";
+import Header from "@/components/layout/Header";
 
 const ListingPage: React.FC = () => {
   const [formData, setFormData] = useState({
