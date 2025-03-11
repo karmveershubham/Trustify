@@ -36,7 +36,7 @@ const ContactsPage = () => {
         };
 
         fetchContacts();
-    }, []);
+    }, [API_URL]);
 
     return (
         <div className="w-full flex flex-col items-center mt-20 mb-20 px-4">
