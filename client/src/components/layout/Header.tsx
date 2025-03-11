@@ -1,16 +1,47 @@
 'use client';
 
-import React from 'react';
+import React, { useContext , useState} from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { UserGroupIcon } from '@heroicons/react/24/solid';
-import { useAuth } from '@/context/AuthContext';
+import { AuthContext } from '@/context/AuthContext';
+import { useRouter } from 'next/router';
 
 export default function Header() {
-  const { user, logout } = useAuth();
+
+  const authContext=useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const {user, logout}=authContext;
+
+  // const handleLogout = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
+  //       method: 'POST',
+  //       credentials: 'include',
+  //     });
+  //     router.push('/login');
+  //   } catch (error) {
+  //     console.error('Logout error:', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+   const handleLogout = async () => {
+    try {
+      setIsLoading(true);
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <header className="container mx-auto py-4 px-4 flex items-center justify-between transition-all duration-700">
+    <div className='fixed top-0 w-full z-50 shadow-sm  backdrop-blur-2xl  bg-opacity-10'>
+    <header className="container mx-auto py-4 px-4 flex items-center justify-between transition-all duration-700 ">
       <div className="flex items-center gap-2">
         <UserGroupIcon className="text-orange-500 h-6 w-6 animate-pulse" />
         <span className="text-xl font-bold">Trustify</span>
@@ -27,6 +58,9 @@ export default function Header() {
         </nav>
       ) : (
         <nav className="hidden md:flex items-center gap-6">
+          <Link href="/" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+            Home
+          </Link>
           <Link href="#about" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
             About
           </Link>
@@ -45,9 +79,9 @@ export default function Header() {
       <div className="flex items-center gap-4">
         {user ? (
           <>
-            <span className="text-sm font-medium text-gray-700">Hi, {user.name}</span>
-            <Button onClick={logout} className="bg-red-500 hover:bg-red-600 transition-transform duration-300 hover:scale-105">
-              Logout
+            <span className="text-sm font-medium text-gray-700">Hi, {user?.name}</span>
+            <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 transition-transform duration-300 hover:scale-105">
+              {isLoading? 'Logging out...' : 'Logout'}
             </Button>
           </>
         ) : (
@@ -64,6 +98,7 @@ export default function Header() {
         )}
       </div>
     </header>
+    </div>
   );
 }
 

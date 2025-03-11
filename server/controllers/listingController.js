@@ -27,10 +27,10 @@ export const getProducts = async (req, res) => {
       };
     });
 
-    res.status(200).json({ success: true, products });
+    res.status(200).json({ status: "success",  products });
   } catch (error) {
     console.error('Error retrieving products:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ status: "failed", message: 'Internal server error' });
   } finally {
     await session.close();
   }
@@ -43,7 +43,7 @@ export const addProduct = async (req, res) => {
     const imageUrl = req.file ? req.file.path : null;
 
     if (!name || !description || !purchasedDate || !category || !price) {
-      return res.status(400).json({ error: 'All fields are required' });
+      return res.status(400).json({ status: "failed", message: 'All fields are required' });
     }
 
     const session = driver.getDriver().session();
@@ -73,9 +73,9 @@ export const addProduct = async (req, res) => {
 
     const product = result.records[0].get('p').properties;
 
-    res.status(201).json({ success: true, product });
+    res.status(201).json({ status: "success", product });
   } catch (error) {
     console.error('Error adding product:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({status: "failed", message: 'Internal server error' });
   }
 };

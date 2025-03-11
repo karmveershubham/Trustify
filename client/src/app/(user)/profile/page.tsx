@@ -1,4 +1,3 @@
-
 'use client'
 
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "@/components/ui/card";
@@ -6,37 +5,84 @@ import Image from "next/image";
 import { Label} from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Header from "@/components/layout/Header";
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { cookies } from "next/headers";
+import Cookies from "js-cookie";
 
 export default function Profile() {
-
-  const { user, logout, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const authContext = useContext(AuthContext);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user, router]);
+  const {user, logout} = authContext;
+  
+  const auth = Cookies.get("is_auth");
+  // useEffect(() => { 
+  //   if (auth===undefined) {
+  //     router.push('/login');
+  //   }
+  // }, [auth]);
 
-  if (!user) {
-    return null;
-  }
+
+  if(!user) return <p className="min-h-screen flex justify-center items-center">Loading.....</p>;
 
   const handleLogout = async () => {
-    await logout();
-    router.push('/login');
+    try {
+      setIsLoading(true);
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // const [user, setUser] = useState(null);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const router = useRouter();
+  //   useEffect(() => {
+  //   fetchUserProfile();
+  //   if (!user) router.push('/login');
+  // }, []);
 
+  // const fetchUserProfile = async () => {
+  //   try {
+  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+  //       credentials: 'include',
+  //     });
+  //     const data = await res.json();
+  //     if (res.ok) {
+  //       setUser(data.user);
+  //     } else {
+  //       setUser(null);
+  //     }
+  //   } catch (error) {
+  //     setUser(null);
+  //   }
+  // };
+
+  // const handleLogout = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
+  //       method: 'POST',
+  //       credentials: 'include',
+  //     });
+  //     setUser(null);
+  //     router.push('/login');
+  //   } catch (error) {
+  //     console.error('Logout error:', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+  
   return (
     <div>
-        <Header />
-        <div className="grid grid-cols-[2fr_5fr] bg-white min-h-screen ">
-        <Card className="bg-[#FAFAFA] w-[350px] mx-[30px] my-[30px]">
+      <div className="grid grid-cols-[2fr_5fr] min-h-screen ">
+        <Card className=" w-[350px] mx-[30px] my-[30px]">
           <div>
             <Image
             className="justify-center mx-auto"
@@ -45,25 +91,25 @@ export default function Profile() {
               width={200}
               height={200}
             />
-          <CardTitle className="px-6 text-center">{user.name}</CardTitle>
-          <CardDescription className="px-6 py-2 text-center">{user.email}</CardDescription>
+          <CardTitle className="px-6 text-center">{user?.name}</CardTitle>
+          <CardDescription className="px-6 py-2 text-center">{user?.email}</CardDescription>
         
           </div>
           <div className="grid w-full items-center gap-10 my-2">
             <div className="flex flex-col px-5">
-              <Button>Account Info</Button>
+              <Button onClick={()=>router.push('/products')}>Products</Button>
             </div>
             <div className="flex flex-col px-5">
-              <Button>My Orders</Button>
+              <Button onClick={()=>router.push('/list-product')}>Sell Product</Button>
+            </div>
+             <div className="flex flex-col px-5 mb-2">
+              <Button onClick={()=>router.push('/contacts')}>My Contacts</Button>
             </div>
             <div className="flex flex-col px-5">
-              <Button>My Addresses</Button>
+              <Button>My Order</Button>
             </div>
             <div className="flex flex-col px-5 mb-2">
               <Button>Change password</Button>
-            </div>
-            <div className="flex flex-col px-5 mb-2">
-              <Button onClick={()=>router.push('/contact')}>My Contacts</Button>
             </div>
             <div className="flex flex-col px-5 mb-2">
               <Button  variant="destructive" onClick={handleLogout} disabled={isLoading}>
@@ -73,7 +119,7 @@ export default function Profile() {
           </div>
         </Card>
         
-        <div  className="bg-white min-h-screen ">
+        <div  className="min-h-screen ">
           <Card className="bg-[#FAFAFA] w-[1055px] mx-[30px] my-[30px]">
             <CardTitle className= "text-xl mx-[30px] my-[30px]">Account Info</CardTitle>
             <CardContent>
@@ -110,15 +156,3 @@ export default function Profile() {
     
   );
 }
-
-// will use later for logout on header and profile page
-
-// fetch('/logout', { method: 'POST' })
-//   .then(response => response.json())
-//   .then(data => {
-//     console.log(data.message); // "Logged out successfully"
-//     window.location.href = data.redirectTo; // Redirect to the home page
-//   })
-//   .catch(error => {
-//     console.error('Logout failed:', error);
-//   });
