@@ -5,7 +5,7 @@ import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-
+import { API_URL } from "@/constants";
 interface Product {
   id: string;
   name: string;

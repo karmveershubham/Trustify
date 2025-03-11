@@ -7,6 +7,8 @@ import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
+import { API_URL } from "@/constants";
+
 
 
 
@@ -17,13 +19,12 @@ export default function Signin() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const auth = useContext(AuthContext);
-
-
+  console.log(API_URL);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setIsLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
+      const res = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
