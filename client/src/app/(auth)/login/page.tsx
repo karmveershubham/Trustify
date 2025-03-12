@@ -10,7 +10,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { API_URL } from "@/lib/constant";
 
 export default function Signin() {
-  const [email, setEmail] = useState('');
+   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +20,7 @@ export default function Signin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(API_URL);
+      console.log(API_URL)
       setIsLoading(true);
       const res = await fetch(`${API_URL}/api/login`, {
         method: 'POST',

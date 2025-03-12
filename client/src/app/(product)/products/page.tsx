@@ -58,7 +58,7 @@ export default function ProductPage() {
     };
 
     fetchProducts();
-  }, [API_URL]);
+  }, []);
 
   // Filtering function
   const handleFilter = (category: string) => {
