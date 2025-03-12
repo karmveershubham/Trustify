@@ -1,15 +1,23 @@
 "use client"
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/constant";
 
 const ContactsPage = () => {
     const [contacts, setContacts] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error, setError] = useState("");    
+    const router = useRouter();
+    const auth = Cookies.get("is_auth");
 
     useEffect(() => {
+        // if (auth===undefined) {
+        //     router.push('/login');
+        // }
         const fetchContacts = async () => {
             try {
-                const response = await fetch("http://localhost:8080/api/contacts", {
+                const response = await fetch(`${API_URL}/api/contacts`, {
                     method: "GET",
                     credentials: "include", 
                 });

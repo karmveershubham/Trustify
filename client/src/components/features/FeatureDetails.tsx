@@ -1,4 +1,3 @@
-'use client';
 import React from 'react';
 import { StarIcon, ShieldCheckIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 

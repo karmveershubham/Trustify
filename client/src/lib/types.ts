@@ -2,12 +2,12 @@ export interface User {
   id: string;
   email: string;
   name?: string;
-  // Add other user properties as needed
+  profilePicture?: string;
+  mobile_no?: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  isLoading: boolean;
+  setUser: (user: User | null) => void;
+  logout: () => void;
 }

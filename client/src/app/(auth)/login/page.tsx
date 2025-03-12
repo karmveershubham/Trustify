@@ -1,36 +1,48 @@
 'use client';
-import React, { useState } from "react";
-import { useAuth } from '@/context/AuthContext';
+import React, { useState, useContext } from "react";
 import Image from "next/image";
 import loginImage from "@/../public/images/login.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const API_URL="http://localhost:8080"   //replace by env
+import { AuthContext } from "@/context/AuthContext";
+import { API_URL } from "@/lib/constant";
 
 export default function Signin() {
-  const [email, setEmail] = useState('');
+   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const {login, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
+  const auth = useContext(AuthContext);
+  console.log(API_URL);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     try {
-      await login(email, password);
-      router.push('/profile');
-    } catch (err) {
-      console.error("Login error:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Failed to login. Please try again.");
+      console.log(API_URL)
+      setIsLoading(true);
+      const res = await fetch(`${API_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        auth?.setUser(data.user);
+        router.push('/profile');
+      } else {
+        setError(data.message || "Invalid credentials");
+      }
+    } catch {
+      setError("Failed to login. Please try again.");
     }
+    setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#EDF0FD] to-white">
+    <div className="min-h-screen bg-amber-50 flex items-center justify-center">
       <div className="mt-8 flex justify-center m-10">
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex items-center p-8 mx-4">
           {/* Left Section with Image */}

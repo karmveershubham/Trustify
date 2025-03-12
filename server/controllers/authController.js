@@ -9,7 +9,7 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
+    return res.status(400).json({status: "failed", message: 'Email and password are required' });
   }
 
   const session = driver.getDriver().session(); // Create a new session for Neo4j queries
@@ -21,7 +21,7 @@ export const login = async (req, res) => {
     );
 
     if (result.records.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({status: "failed",  message: 'User not found' });
     }
 
     // Get user properties
@@ -30,7 +30,7 @@ export const login = async (req, res) => {
     // Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ status: "failed", message: 'Invalid credentials' });
     }
 
     // Generate JWT token    //later MAKE IT ASYNC 
@@ -52,7 +52,7 @@ export const login = async (req, res) => {
     });
     
     res.status(200).json({
-        user: { id: user.id, email: user.email, name: user.name},
+        user: { id: user.id, email: user.email, name: user.name, mobile_no: user.mobile_no || "", profilePicture: user.profilePicture || "" },
         status: "success",
         message: "Login successful",
         token: token,
@@ -61,7 +61,6 @@ export const login = async (req, res) => {
 
     console.log("User login succesful")
 
-      
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).json({ status: "failed", message: "Unable to login, please try again later" });
@@ -72,12 +71,38 @@ export const login = async (req, res) => {
 
 //profile
 export const userProfile = async (req, res) => {
-  if (!req.user) {
-    res.status(401).send({ message: 'Unauthorized' });
+  if (!req.body) {
+    res.status(401).send({ status: "failed", message: 'Unauthorized' });
     return;
   }
-  console.log(req.user);
-  res.send({ "user": req.user })
+  console.log(req.body);
+  try {
+    const email = req.body.email;
+    const session = driver.getDriver().session();
+    const result = await session.run(
+      "MATCH (u:User {email: $email}) RETURN u",
+      { email }
+    );
+    if (result.records.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const user = result.records[0].get("u").properties;
+
+    res.status(200).json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        mobile_no: user.mobile_no || "",
+        profilePicture: user.profilePicture || "",
+      },
+      status: "success",
+      message: "User profile fetched successfully.",
+    });
+  }catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ status: "failed", message: "Unable to fetch profile" });
+  }
 };
 
 
@@ -85,7 +110,7 @@ export const userProfile = async (req, res) => {
 export const logout = (req, res) => {
   try{
     if(req.body){
-      console.log(body);
+      console.log(req.body);
     }
     res.clearCookie("token");
     res.clearCookie("is_auth");

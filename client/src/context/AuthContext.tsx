@@ -1,64 +1,59 @@
 'use client';
+import { createContext, useState, useEffect, ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import {User, AuthContextType} from "@/lib/types";
+import { API_URL } from "@/lib/constant";
 
-import React, { createContext, useContext, useState } from 'react';
-import { User, AuthContextType } from '@/lib/types';
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-const API_URL = 'http://localhost:8080';
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const login = async (email: string, password: string) => {
+   const fetchUserProfile = async () => {
+    console.log(API_URL);
     try {
-      setIsLoading(true);
-      const result = await fetch(`${API_URL}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include'
+      const res = await fetch(`${API_URL}/api/profile`, {
+        credentials: "include",
       });
-      const res = await result.json();
-      if(res && res.status === "success"){
-        console.log(res.user)
-        setUser(res.user);
+      const data = await res.json();
+      if (res.ok) {
+        setUser(data.user);
+      } else {
+        setUser(null);
       }
     } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      setUser(null);
     }
   };
 
+  useEffect(() => {
+    if (Cookies.get("is_auth")) {
+      fetchUserProfile();
+    }
+  }, []);
+
+  // Centralized logout function
   const logout = async () => {
     try {
-      setIsLoading(true);
       await fetch(`${API_URL}/api/logout`, {
-        method: 'POST',
-        credentials: 'include'
+        method: "POST",
+        credentials: "include",
       });
+      Cookies.remove("is_auth");
       setUser(null);
+      router.push("/login"); 
     } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setIsLoading(false);
+      console.error("Logout error:", error);
+      throw new Error("Logout failed. Please try again.");
+
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading}}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+};

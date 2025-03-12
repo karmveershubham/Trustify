@@ -19,10 +19,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <AuthProvider>
+      <body className={`${inter.className} bg-amber-50`} >
+          <AuthProvider>
+          <Header/>
           <main>{children}</main>
-        </AuthProvider>
+          <Footer/>
+          </AuthProvider>
       </body>
     </html>
   );

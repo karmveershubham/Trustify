@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/constant";
 
 interface Product {
   id: string;
@@ -21,9 +24,13 @@ export default function ProductPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [sortOption, setSortOption] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const API_URL = "http://localhost:8080";
+  const router = useRouter();
+  const auth = Cookies.get("is_auth");
 
   useEffect(() => {
+    // if (auth===undefined) {
+    //   router.push('/login');
+    // }
     const fetchProducts = async () => {
       try {
         const response = await fetch(`${API_URL}/api/listings/products`, {

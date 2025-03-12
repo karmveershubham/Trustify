@@ -2,8 +2,22 @@
 
 import React, { useState } from "react";
 import Header from "@/components/layout/Header";
+import Cookies from "js-cookie";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/constant";
+
+
 
 const ListingPage: React.FC = () => {
+  const router = useRouter();
+  const auth = Cookies.get("is_auth");
+  // useEffect(() => { 
+  //   if (auth===undefined) {
+  //     router.push('/login');
+  //   }
+  // }, [auth]);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -33,9 +47,9 @@ const ListingPage: React.FC = () => {
     data.append("category", formData.category);
     data.append("price", formData.price);
     if (formData.image) data.append("image", formData.image);
-
+    
     try {
-      const response = await fetch("http://localhost:8080/api/listings/add-product", {
+      const response = await fetch(`${API_URL}/api/listings/add-product`, {
         method: "POST",
         body: data,
       });
