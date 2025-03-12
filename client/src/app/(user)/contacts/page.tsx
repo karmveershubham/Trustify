@@ -2,13 +2,12 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/constant";
 
 const ContactsPage = () => {
     const [contacts, setContacts] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    
+    const [error, setError] = useState("");    
     const router = useRouter();
     const auth = Cookies.get("is_auth");
 

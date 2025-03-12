@@ -5,6 +5,7 @@ import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/constant";
 
 interface Product {
   id: string;
@@ -23,7 +24,6 @@ export default function ProductPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [sortOption, setSortOption] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
   const auth = Cookies.get("is_auth");
 
@@ -58,7 +58,7 @@ export default function ProductPage() {
     };
 
     fetchProducts();
-  }, []);
+  }, [API_URL]);
 
   // Filtering function
   const handleFilter = (category: string) => {

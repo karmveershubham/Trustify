@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { cookies } from "next/headers";
 import Cookies from "js-cookie";
 
 export default function Profile() {
@@ -39,48 +38,8 @@ export default function Profile() {
     }
   };
 
-  // const [user, setUser] = useState(null);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const router = useRouter();
-  //   useEffect(() => {
-  //   fetchUserProfile();
-  //   if (!user) router.push('/login');
-  // }, []);
-
-  // const fetchUserProfile = async () => {
-  //   try {
-  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
-  //       credentials: 'include',
-  //     });
-  //     const data = await res.json();
-  //     if (res.ok) {
-  //       setUser(data.user);
-  //     } else {
-  //       setUser(null);
-  //     }
-  //   } catch (error) {
-  //     setUser(null);
-  //   }
-  // };
-
-  // const handleLogout = async () => {
-  //   try {
-  //     setIsLoading(true);
-  //     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
-  //       method: 'POST',
-  //       credentials: 'include',
-  //     });
-  //     setUser(null);
-  //     router.push('/login');
-  //   } catch (error) {
-  //     console.error('Logout error:', error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-  
   return (
-    <div>
+    <div className="min-h-screen flex justify-center items-center mt-24">
       <div className="grid grid-cols-[2fr_5fr] min-h-screen ">
         <Card className=" w-[350px] mx-[30px] my-[30px]">
           <div>

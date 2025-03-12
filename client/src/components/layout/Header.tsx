@@ -5,28 +5,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { UserGroupIcon } from '@heroicons/react/24/solid';
 import { AuthContext } from '@/context/AuthContext';
-import { useRouter } from 'next/router';
 
 export default function Header() {
 
   const authContext=useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const {user, logout}=authContext;
-
-  // const handleLogout = async () => {
-  //   try {
-  //     setIsLoading(true);
-  //     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
-  //       method: 'POST',
-  //       credentials: 'include',
-  //     });
-  //     router.push('/login');
-  //   } catch (error) {
-  //     console.error('Logout error:', error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
    const handleLogout = async () => {
     try {
@@ -44,7 +28,7 @@ export default function Header() {
     <header className="container mx-auto py-4 px-4 flex items-center justify-between transition-all duration-700 ">
       <div className="flex items-center gap-2">
         <UserGroupIcon className="text-orange-500 h-6 w-6 animate-pulse" />
-        <span className="text-xl font-bold">Trustify</span>
+        <span className="text-xl font-bold"><Link href='/'>Trustify</Link></span>
       </div>
 
       {user ? (

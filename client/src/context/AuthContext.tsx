@@ -3,8 +3,8 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import {User, AuthContextType} from "@/lib/types";
+import { API_URL } from "@/lib/constant";
 
-// Create AuthContext with default values
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -12,8 +12,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
    const fetchUserProfile = async () => {
+    console.log(API_URL);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+      const res = await fetch(`${API_URL}/api/profile`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Centralized logout function
   const logout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
+      await fetch(`${API_URL}/api/logout`, {
         method: "POST",
         credentials: "include",
       });

@@ -7,8 +7,7 @@ import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
-
-
+import { API_URL } from "@/lib/constant";
 
 export default function Signin() {
   const [email, setEmail] = useState('');
@@ -17,13 +16,13 @@ export default function Signin() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const auth = useContext(AuthContext);
-
-
+  console.log(API_URL);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(API_URL);
       setIsLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
+      const res = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -43,7 +42,7 @@ export default function Signin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#EDF0FD] to-white">
+    <div className="min-h-screen bg-amber-50 flex items-center justify-center">
       <div className="mt-8 flex justify-center m-10">
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex items-center p-8 mx-4">
           {/* Left Section with Image */}

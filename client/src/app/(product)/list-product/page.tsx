@@ -5,7 +5,7 @@ import Header from "@/components/layout/Header";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-
+import { API_URL } from "@/lib/constant";
 
 
 
@@ -47,7 +47,7 @@ const ListingPage: React.FC = () => {
     data.append("category", formData.category);
     data.append("price", formData.price);
     if (formData.image) data.append("image", formData.image);
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    
     try {
       const response = await fetch(`${API_URL}/api/listings/add-product`, {
         method: "POST",

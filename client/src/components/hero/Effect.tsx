@@ -14,7 +14,7 @@ export default function Effect() {
     }, []);
 
     return (
-        <h1 className="text-2xl md:text-4xl font-bold mt-3 text-gray-900 leading-tight animate-bounce">
+        <h1 className="text-4xl md:text-6xl font-bold mt-3 text-gray-900 leading-tight animate-bounce">
             Buy & Sell Safely Within Your{" "}
             <span className="text-orange-500 inline-block">
             {words[index]}
@@ -22,3 +22,5 @@ export default function Effect() {
         </h1>
     );
 }
+
+//not in use can be deleted 
