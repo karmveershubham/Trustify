@@ -1,42 +1,55 @@
-'use client';
-import React, { useState, useContext } from "react";
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import loginImage from "@/../public/images/login.png";
+import { useDispatch } from "react-redux";
+import {login} from "@/services/slices/authSlices";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
 import { API_URL } from "@/lib/constant";
+import toast from "react-hot-toast";
+import { loginSchema } from "@/validations/schemas";
+import { useAppDispatch, useAppSelector } from "@/services/store";
 
 export default function Signin() {
-   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setIsLoading] = useState(false);
+   const dispatch = useAppDispatch();
   const router = useRouter();
-  const auth = useContext(AuthContext);
-  console.log(API_URL);
-  const handleSubmit = async (e) => {
+  const {error} = useAppSelector((state) => state.auth);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" }); // Clear error on change
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      console.log(API_URL)
-      setIsLoading(true);
-      const res = await fetch(`${API_URL}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
+    setErrors({}); 
+
+    // Validate using Zod
+    const result = loginSchema.safeParse(formData);
+    if (!result.success) {
+      const errorObj: any = {};
+      result.error.errors.forEach((err) => {
+        errorObj[err.path[0]] = err.message;
       });
-      const data = await res.json();
-      if (data.status === "success") {
-        auth?.setUser(data.user);
-        router.push('/profile');
-      } else {
-        setError(data.message || "Invalid credentials");
-      }
+      setErrors(errorObj);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+        const resultAction = await dispatch(login(formData)).unwrap();
+        toast.success("Login successful!");
+        router.push("/profile");
     } catch {
-      setError("Failed to login. Please try again.");
+      toast.error("Failed to login. Please try again.");
     }
     setIsLoading(false);
   };
@@ -56,53 +69,54 @@ export default function Signin() {
             <p className="text-sm uppercase tracking-wide text-gray-500">
               Login to Continue
             </p>
-
-            {/* Display Error */}
-            {error && <div className="text-red-500 text-sm">{error}</div>}
-
+           
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Input */}
               <label className="text-sm text-black">Email Address</label>
               <input
                 type="email"
+                name="email"
                 placeholder="Enter your email"
                 className="h-11 w-full border border-gray-300 rounded-lg px-3"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
               />
-
+              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+              <p></p>
+              
               {/* Password Input */}
               <label className="text-sm text-black">Password</label>
               <div className="relative">
                 <input
                   type="password"
+                  name="password"
                   placeholder="Enter your password"
                   className="h-11 w-full border border-gray-300 rounded-lg pl-10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                 />
                 <FontAwesomeIcon
                   icon={faLock}
                   className="w-[15.2px] h-[12px] absolute left-3 top-1/2 transform -translate-y-1/2"
                 />
               </div>
+              {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
 
               {/* Login Button */}
               <button
-                type="submit" 
+                type="submit"
                 className="w-full h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 uppercase text-sm font-medium"
-                disabled={isLoading}>
-                  {isLoading ? "Logging in..." : "Login"}
+                disabled={loading}
+              >
+                {loading ? "Logging in..." : "Login"}
               </button>
             </form>
 
             {/* Signup Link */}
             <div className="flex justify-center">
-              <Link href="/register">
-                <span className="text-xs uppercase text-gray-500">
-                  New User? Signup
-                </span>
+              <Link href="/downloads">
+                <span className="text-xs uppercase text-gray-500">New User? Download App</span>
               </Link>
             </div>
           </div>

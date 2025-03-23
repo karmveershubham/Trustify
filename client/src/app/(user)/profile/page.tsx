@@ -5,51 +5,54 @@ import Image from "next/image";
 import { Label} from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { RootState, useAppDispatch, useAppSelector } from "@/services/store";
+import { fetchUser, logout } from "@/services/slices/authSlices";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { toast } from "react-hot-toast";
 
 export default function Profile() {
+ 
+  const user = useAppSelector((state: RootState) => state.auth.user);
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const authContext = useContext(AuthContext);
   const router = useRouter();
 
-  const {user, logout} = authContext;
+    useEffect(() => {
+      if (!user) dispatch(fetchUser()); // Fetch user if not in Redux state
+    }, [dispatch, user]);
   
-  const auth = Cookies.get("is_auth");
-  // useEffect(() => { 
-  //   if (auth===undefined) {
-  //     router.push('/login');
-  //   }
-  // }, [auth]);
-
-
-  if(!user) return <p className="min-h-screen flex justify-center items-center">Loading.....</p>;
-
   const handleLogout = async () => {
     try {
-      setIsLoading(true);
-      await logout();
+      try {
+      await dispatch(logout()).unwrap();
+      router.push("/login");
+      toast.success("Logged out successfully");
     } catch (error) {
-      console.error('Logout error:', error);
+      toast.error("Logout failed. Please try again.");
+    }
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (!user) {
+    return null;   //show loader task to be created
+  }
 
   return (
     <div className="min-h-screen flex justify-center items-center mt-24">
       <div className="grid grid-cols-[2fr_5fr] min-h-screen ">
         <Card className=" w-[350px] mx-[30px] my-[30px]">
           <div>
-            <Image
-            className="justify-center mx-auto"
-              alt="profile"
-              src="/images/profile.png"
-              width={200}
-              height={200}
-            />
+           <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-[4px] mb-4">
+              <Image
+                className="rounded-full object-cover w-full h-full"
+                alt="User Profile"
+                src={user?.profile_picture || "/images/profile.png"} 
+                fill
+              />
+            </div>
           <CardTitle className="px-6 text-center">{user?.name}</CardTitle>
           <CardDescription className="px-6 py-2 text-center">{user?.email}</CardDescription>
         

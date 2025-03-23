@@ -5,25 +5,31 @@ export const getProducts = async (req, res) => {
   const session = driver.getDriver().session();
 
   try {
-    const query = `
-      MATCH (p:Product)
-      RETURN p
-      ORDER BY p.createdAt DESC
+     const query = `
+      MATCH (me:User {id: $userId})-[:HAS_CONTACT]->(mutualFriend:User)
+      MATCH (mutualFriend)-[:HAS_CONTACT]->(me) 
+      OPTIONAL MATCH (mutualFriend)-[:LISTED]->(listedProduct:Product)
+      OPTIONAL MATCH (mutualFriend)-[:HAS_VERIFIED]->(verifiedProduct:Product)
+      WITH COLLECT(DISTINCT listedProduct) + COLLECT(DISTINCT verifiedProduct) AS allProducts, me
+      UNWIND allProducts AS product
+      WITH DISTINCT product, me
+      WHERE NOT (me)-[:LISTED]->(product)  
+      RETURN DISTINCT product
+      ORDER BY product.listed_date DESC
     `;
 
-    const result = await session.run(query);
+    const result = await session.run(query, {userId: req.body.id});
 
     const products = result.records.map((record) => {
-      const product = record.get('p').properties;
+      const product = record.get('product').properties;
       return {
         id: product.id,
         name: product.name,
         description: product.description,
-        purchasedDate: product.purchasedDate,
         category: product.category,
         price: product.price,
-        image: product.image || null,
-        createdAt: product.createdAt,
+        images: product.images || null,
+        listed_date: product.listed_date,
       };
     });
 

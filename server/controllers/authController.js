@@ -52,7 +52,7 @@ export const login = async (req, res) => {
     });
     
     res.status(200).json({
-        user: { id: user.id, email: user.email, name: user.name, mobile_no: user.mobile_no || "", profilePicture: user.profilePicture || "" },
+        user: { id: user.id, email: user.email, name: user.name, mobile_no: user.mobile_no || "", profile_picture: user.profile_picture || "" },
         status: "success",
         message: "Login successful",
         token: token,
@@ -75,7 +75,7 @@ export const userProfile = async (req, res) => {
     res.status(401).send({ status: "failed", message: 'Unauthorized' });
     return;
   }
-  console.log(req.body);
+  // console.log(req.body);
   try {
     const email = req.body.email;
     const session = driver.getDriver().session();
@@ -94,7 +94,9 @@ export const userProfile = async (req, res) => {
         email: user.email,
         name: user.name,
         mobile_no: user.mobile_no || "",
-        profilePicture: user.profilePicture || "",
+        profile_picture: user.profile_picture || "",
+        trust_rating: user.trust_rating || 0,
+        location: user.location || "",
       },
       status: "success",
       message: "User profile fetched successfully.",

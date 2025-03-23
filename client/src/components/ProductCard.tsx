@@ -5,18 +5,18 @@ interface ProductCardProps {
     id: string;
     name: string;
     description: string;
-    purchasedDate:string;
-    category:string;
+    listed_date: string;
+    category: string;
     price: number;
-    image: string;
+    images: Array<string>;
   };
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function wProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <Image
-        src={product.image}
+        src={product.images[0]}
         alt={product.name}
         width={300}
         height={200}
@@ -24,7 +24,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       />
       <div className="p-4">
         <h2 className="text-lg font-semibold">{product.name}</h2>
-        <h4 className="text-sm font-semibold">{product.purchasedDate}</h4>
+        <h4 className="text-sm font-semibold">{product.listed_date}</h4>
         <p className="text-gray-600 text-sm truncate">{product.description}</p>
         <div className="mt-3 flex justify-between items-center">
           <span className="text-green-600 font-bold">${product.price.toFixed(2)}</span>

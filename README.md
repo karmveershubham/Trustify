@@ -1,4 +1,4 @@
-# Trustify
+# Trustify  [Live Preview](https://trustify-psi.vercel.app/)
 
 Trustify is an innovative platform designed to build trust among users by leveraging the concept of contacts of contacts. This trust-based mechanism ensures that users can buy products from interlinked personnel with confidence, knowing the product's authenticity is upheld by trusted relationships.
 

@@ -36,16 +36,16 @@ async function startServer() {
         const sessiondb = getDriver().session();
 
         // Test Neo4j connection route
-        app.get('/test', async (req, res) => {
-            try {
-                const result = await sessiondb.run('MATCH (n) RETURN n');
-                const nodes = result.records.map((record) => record.get(0).properties);
-                res.json(nodes);
-            } catch (error) {
-                console.error('❌ Error querying Neo4j:', error);
-                res.status(500).send('Neo4j query failed');
-            }
-        });
+        // app.get('/test', async (req, res) => {
+        //     try {
+        //         const result = await sessiondb.run('MATCH (n) RETURN n');
+        //         const nodes = result.records.map((record) => record.get(0).properties);
+        //         res.json(nodes);
+        //     } catch (error) {
+        //         console.error('❌ Error querying Neo4j:', error);
+        //         res.status(500).send('Neo4j query failed');
+        //     }
+        // });
 
         // Start the server
         const PORT = process.env.APP_PORT || 5000;
