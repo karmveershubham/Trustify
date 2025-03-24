@@ -41,13 +41,14 @@ export const login = async (req, res) => {
     //set cookies
     res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.JWT_SECRET, // Use secure cookies in production
+        secure: true,
+        sameSite: "None",
         maxAge: 1 * 24 * 60 * 59 * 1000, // 1 day
     });
 
     res.cookie('is_auth', true, {
       httpOnly: false,
-      secure: false, 
+      secure: true, 
       maxAge: 1 * 24 * 60 * 59 * 1000, // 1 day
     });
     
