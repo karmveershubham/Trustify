@@ -47,8 +47,9 @@ export const login = async (req, res) => {
     });
 
     res.cookie('is_auth', true, {
-      httpOnly: false,
+      httpOnly: true,
       secure: true, 
+      sameSite: "None",
       maxAge: 1 * 24 * 60 * 59 * 1000, // 1 day
     });
     
