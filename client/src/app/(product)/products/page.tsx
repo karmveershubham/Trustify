@@ -6,15 +6,16 @@ import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/lib/constant";
+import toast from "react-hot-toast";
 
 interface Product {
-  id: string;
+   id: string;
   name: string;
   description: string;
-  purchasedDate: string;
+  listed_date: string;
   category: string;
   price: number;
-  image: string;
+  images: Array<string>;
 }
 
 export default function ProductPage() {
@@ -28,9 +29,6 @@ export default function ProductPage() {
   const auth = Cookies.get("is_auth");
 
   useEffect(() => {
-    // if (auth===undefined) {
-    //   router.push('/login');
-    // }
     const fetchProducts = async () => {
       try {
         const response = await fetch(`${API_URL}/api/listings/products`, {
@@ -51,6 +49,7 @@ export default function ProductPage() {
         const uniqueCategories: string[] = ["All", ...Array.from(new Set(data.products.map((p) => p.category)))];
         setCategories(uniqueCategories);
       } catch (error) {
+        toast.error("Failed to fetch products.");
         console.error("Failed to fetch products:", error);
       } finally {
         setLoading(false);
@@ -70,8 +69,8 @@ export default function ProductPage() {
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "priceLow") return a.price - b.price;
     if (sortOption === "priceHigh") return b.price - a.price;
-    if (sortOption === "dateNew") return new Date(b.purchasedDate).getTime() - new Date(a.purchasedDate).getTime();
-    if (sortOption === "dateOld") return new Date(a.purchasedDate).getTime() - new Date(b.purchasedDate).getTime();
+    if (sortOption === "dateNew") return new Date(b.listed_date).getTime() - new Date(a.listed_date).getTime();
+    if (sortOption === "dateOld") return new Date(a.listed_date).getTime() - new Date(b.listed_date).getTime();
     return 0;
   });
 

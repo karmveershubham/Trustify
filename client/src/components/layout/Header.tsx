@@ -1,23 +1,36 @@
 'use client';
 
-import React, { useContext , useState} from 'react';
+import React, { useContext , useEffect, useState} from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { UserGroupIcon } from '@heroicons/react/24/solid';
-import { AuthContext } from '@/context/AuthContext';
+import { RootState } from "@/services/store";
+import { logout, fetchUser } from "@/services/slices/authSlices";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast"
+import { useAppDispatch , useAppSelector} from "@/services/store";
+import Cookies from 'js-cookie';
 
 export default function Header() {
 
-  const authContext=useContext(AuthContext);
+  const user = useAppSelector((state: RootState) => state.auth.user);
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const {user, logout}=authContext;
+  const router = useRouter();
 
-   const handleLogout = async () => {
+    useEffect(() => {
+      if (!user) dispatch(fetchUser()); // Fetch user if not in Redux state
+    }, [dispatch, user]);
+
+  const handleLogout = async () => {
     try {
-      setIsLoading(true);
-      await logout();
+       try {
+      await dispatch(logout()).unwrap();
+      router.push("/login");
+      toast.success("Logged out successfully");
     } catch (error) {
-      console.error('Logout error:', error);
+      toast.error("Logout failed. Please try again.");
+    }
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +86,7 @@ export default function Header() {
             <Link href="/login" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
               Log In
             </Link>
-            <Link href="/signup">
+            <Link href="/downloads">
               <Button className="bg-orange-500 hover:bg-orange-600 transition-transform duration-300 hover:scale-105">
                 Get Started
               </Button>

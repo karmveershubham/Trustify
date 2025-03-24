@@ -10,7 +10,7 @@ export const isAuthenticated = (req, res, next) => {
     if (!token) return res.status(401).json({ error: "Access denied" });
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use your secret key
-        console.log(decoded);
+        // console.log(decoded);
         req.body = decoded; // Attach user info to request
         next();
     } catch (error) {

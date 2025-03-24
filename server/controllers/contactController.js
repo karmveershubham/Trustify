@@ -6,15 +6,15 @@ const router = express.Router();
 export const getContacts = async (req, res) => {
     const session = driver.getDriver().session();
     try {
-        const userEmail = req.body.email; // Extract user email from request body
-        console.log("userEmail", userEmail);
+        const userId = req.body.id; // Extract user email from request body
+        // console.log("userId", userId);
 
         const query = `
-            MATCH (u:User {email: $email}) 
+            MATCH (u:User {id: $userId}) 
             RETURN u.contacts AS contacts
         `;
 
-        const result = await session.run(query, { email: userEmail });
+        const result = await session.run(query, { userId: userId });
 
         if (result.records.length === 0) {
             return res.status(404).json({ status: "failed", message: "User not found" });

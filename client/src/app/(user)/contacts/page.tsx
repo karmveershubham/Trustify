@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/lib/constant";
+import toast from "react-hot-toast";
 
 const ContactsPage = () => {
     const [contacts, setContacts] = useState<string[]>([]);
@@ -12,9 +13,6 @@ const ContactsPage = () => {
     const auth = Cookies.get("is_auth");
 
     useEffect(() => {
-        // if (auth===undefined) {
-        //     router.push('/login');
-        // }
         const fetchContacts = async () => {
             try {
                 const response = await fetch(`${API_URL}/api/contacts`, {
@@ -28,6 +26,7 @@ const ContactsPage = () => {
                 console.log(data.contacts);
                 setContacts(data.contacts); setContacts(Array.isArray(data.contacts) ? data.contacts : []); // Ensure it's an array
             } catch (err) {
+                toast.error("Failed to fetch contacts.");
                 setError(err.message);
             } finally {
                 setLoading(false);
