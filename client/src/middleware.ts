@@ -4,7 +4,7 @@ import { NextResponse, NextRequest } from 'next/server';
 const publicPaths = ['/login', '/forget-password'];
 
 export async function middleware(request: NextRequest) {
-  try {
+  /*try {
     const isAuthenticated = request.cookies.get('is_auth')?.value==='true';
     const path = request.nextUrl.pathname;
 
@@ -21,11 +21,11 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error('Error occurred while checking authentication:', error);
     return NextResponse.error();
-  }
+  }*/
 }
 // This specifies which paths the middleware should run on. In this case, the middleware will apply to all paths except the ones specified in the matcher array.
 export const config = {
-  matcher: [
+ /* matcher: [
     '/login', '/forget-password', '/user/:path*',  '/products', '/list-product', '/contacts', '/profile'
-  ],
+  ],*/
 };
