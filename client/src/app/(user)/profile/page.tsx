@@ -1,14 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
-import { Label } from "@radix-ui/react-label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image"; 
+import Image from "next/image";
 import { RootState, useAppDispatch, useAppSelector } from "@/services/store";
 import { fetchUser, logout } from "@/services/slices/authSlices";
 import { toast } from "react-hot-toast"; 
