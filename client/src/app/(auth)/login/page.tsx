@@ -30,8 +30,8 @@ export default function Signin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({}); 
-
+    setErrors({});
+  
     // Validate using Zod
     const result = loginSchema.safeParse(formData);
     if (!result.success) {
@@ -42,18 +42,33 @@ export default function Signin() {
       setErrors(errorObj);
       return;
     }
-
+  
     try {
       setIsLoading(true);
-        const resultAction = await dispatch(login(formData)).unwrap();
+      
+      // Dispatch login action and get the returned user data
+      const resultAction = await dispatch(login(formData)).unwrap();
+      
+      console.log("Login successful, User Data:", resultAction); // Debugging log
+  
+      if (resultAction?.userId) {
         toast.success("Login successful!");
-        router.push("/profile");
-    } catch {
+        
+        // Pass userId in the URL when redirecting to profile
+        router.push(`/profile?userId=${resultAction.userId}`);
+      } else {
+        toast.error("User ID not found in response.");
+      }
+      
+    } catch (error) {
       toast.error("Failed to login. Please try again.");
+      console.error("Login Error:", error);
     }
+  
     setIsLoading(false);
   };
-
+  
+  
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center">
       <div className="mt-8 flex justify-center m-10">

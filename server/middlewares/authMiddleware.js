@@ -1,31 +1,27 @@
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+
 dotenv.config();
 
-
-// Middleware to check if a user is logged in
+// Middleware to check if a user is authenticated
 export const isAuthenticated = (req, res, next) => {
     const token = req.cookies.token; // Extract token from cookies
     if (!token) return res.status(401).json({ error: "Access denied" });
+
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use your secret key
-        // console.log(decoded);
-        req.body = decoded; // Attach user info to request
+        req.user = decoded; // Attach user info to request without overwriting `req.body`
         next();
     } catch (error) {
-        res.status(400).json({ error: "Invalid token" });
+        return res.status(401).json({ error: "Invalid token" });
     }
 };
 
 // Zod schema for login validation
 const loginSchema = z.object({
-  email: z
-    .string()
-    .email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters long" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
 });
 
 // Middleware for login validation
@@ -43,5 +39,5 @@ export const loginValidation = (req, res, next) => {
   }
 };
 
-// Exporting the modules
+// Exporting modules
 export default { loginValidation, isAuthenticated };
