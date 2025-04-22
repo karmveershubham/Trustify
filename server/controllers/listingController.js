@@ -12,10 +12,11 @@ export const getProducts = async (req, res) => {
 
     const query = `
       MATCH (me:User {id: $userId})-[:HAS_CONTACT]-(mutualFriend:User)
+      MATCH (mutualFriend)-[:HAS_CONTACT]->(me)
       MATCH (mutualFriend)-[:LISTED]->(product:Product)
       WHERE NOT (me)-[:LISTED]->(product)
       RETURN DISTINCT product
-      ORDER BY product.listed_date DESC
+      ORDER BY product.listed_date DESC
     `;
 
     const result = await session.run(query, { userId });

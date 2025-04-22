@@ -1,142 +1,136 @@
 'use client';
 
-import React, { useContext , useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { UserGroupIcon } from '@heroicons/react/24/solid';
+import { useRouter } from "next/navigation";
+import { toast } from 'sonner';
+import { useAppDispatch, useAppSelector } from "@/services/store";
 import { RootState } from "@/services/store";
 import { logout, fetchUser } from "@/services/slices/authSlices";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast"
-import { useAppDispatch , useAppSelector} from "@/services/store";
-import Cookies from 'js-cookie';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Contact, LogOut, ShoppingBag, ShoppingBagIcon, ShoppingCart, User } from 'lucide-react';
+import { FaProductHunt } from 'react-icons/fa6';
 
 export default function Header() {
-
   const user = useAppSelector((state: RootState) => state.auth.user);
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-    useEffect(() => {
-      if (!user) dispatch(fetchUser()); // Fetch user if not in Redux state
-    }, [dispatch, user]);
+  useEffect(() => {
+    if (!user) dispatch(fetchUser());
+  }, [dispatch, user]);
 
   const handleLogout = async () => {
+    setIsLoading(true);
     try {
-       try {
       await dispatch(logout()).unwrap();
-      router.push("/login");
       toast.success("Logged out successfully");
-    } catch (error) {
+      router.push("/login");
+    } catch {
       toast.error("Logout failed. Please try again.");
-    }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className='fixed top-0 w-full z-50 shadow-sm  backdrop-blur-2xl  bg-opacity-10'>
-    <header className="container mx-auto py-4 px-4 flex items-center justify-between transition-all duration-700 ">
-      <div className="flex items-center gap-2">
-        <UserGroupIcon className="text-orange-500 h-6 w-6 animate-pulse" />
-        <span className="text-xl font-bold"><Link href='/'>Trustify</Link></span>
-      </div>
+    <div className="fixed top-0 w-full z-50 shadow-sm backdrop-blur-2xl bg-opacity-10">
+      <header className="container mx-auto py-4 px-4 flex items-center justify-between transition-all duration-700">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <UserGroupIcon className="text-orange-500 h-6 w-6 animate-pulse" />
+          <span className="text-xl font-bold">
+            <Link href="/">Trustify</Link>
+          </span>
+        </div>
 
-      {user ? (
-        <nav className="hidden md:flex items-center gap-6">
-          <Link href="/dashboard" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-            Dashboard
-          </Link>
-          <Link href="/profile" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-            Profile
-          </Link>
-        </nav>
-      ) : (
-        <nav className="hidden md:flex items-center gap-6">
-          <Link href="/" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-            Home
-          </Link>
-          <Link href="#about" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-            About
-          </Link>
-          <Link href="#features" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-            Why us?
-          </Link>
-          <Link href="#faq" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-            FAQs
-          </Link>
-          <Link href="#downloadapp" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-            Download App
-          </Link>
-        </nav>
-      )}
-
-      <div className="flex items-center gap-4">
+        {/* Navigation Links */}
         {user ? (
-          <>
-            <span className="text-sm font-medium text-gray-700">Hi, {user?.name}</span>
-            <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 transition-transform duration-300 hover:scale-105">
-              {isLoading? 'Logging out...' : 'Logout'}
-            </Button>
-          </>
+          <nav className="hidden md:flex items-center gap-6">
+            <Link href="/dashboard" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+              Dashboard
+            </Link>
+            <Link href="/profile" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+              Profile
+            </Link>
+          </nav>
         ) : (
-          <>
-            <Link href="/login" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-              Log In
+          <nav className="hidden md:flex items-center gap-6">
+            <Link href="/" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+              Home
             </Link>
-            <Link href="/downloads">
-              <Button className="bg-orange-500 hover:bg-orange-600 transition-transform duration-300 hover:scale-105">
-                Get Started
-              </Button>
+            <Link href="#about" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+              About
             </Link>
-          </>
+            <Link href="#features" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+              Why us?
+            </Link>
+            <Link href="#faq" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+              FAQs
+            </Link>
+            <Link href="#downloadapp" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+              Download App
+            </Link>
+          </nav>
         )}
-      </div>
-    </header>
+
+        {/* Right Side */}
+        <div className="flex items-center gap-4">
+          {user ? (
+            <>
+            <ShoppingCart className="h-7 w-7 text-gray-6 cursor-pointer" />
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex flex-col items-center space-y-1 outline-none">
+                <Avatar className="h-9 w-9 border-2 border-green-500 hover:scale-105 transition-transform">
+                  <AvatarImage src={user?.profile_picture || undefined} alt={user?.name} />
+                  <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+                </Avatar>
+                <span className="text-xs text-gray-600">{user?.name}</span>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="w-40 mt-2 bg-white shadow-lg rounded-xl">
+                <DropdownMenuItem className='hover:bg-cyan-50 transition-colors duration-300'>
+                  <User/>
+                  <Link href="/profile">My Profile</Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem className='hover:bg-cyan-50 transition-colors duration-300'>
+                  <Contact/>
+                  <Link href="/contacts">Contacts</Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem className='hover:bg-cyan-50 transition-colors duration-300'>
+                  <ShoppingBag/>
+                  <Link href="/products">Products</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className='cursor-pointer bg-red-500 hover:bg-red-600 transition-colors duration-300'  >
+                  <LogOut/>
+                  {isLoading ? 'Logging out...' : 'Logout'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+                Log In
+              </Link>
+              <Link href="/downloads">
+                <Button className="bg-orange-500 hover:bg-orange-600 transition-transform duration-300 hover:scale-105">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
+      </header>
     </div>
   );
 }
-
-
-// DON'T REMOVE BELOW CODE
-
-// 'use client';
-
-// import React from 'react';
-// import Link from 'next/link';
-// import { Button } from '@/components/ui/button';
-// import { UserGroupIcon } from '@heroicons/react/24/solid';
-
-// export default function Header() {
-//   return (
-//     <header className="container mx-auto py-4 px-4 flex items-center justify-between transition-all duration-700">
-//       <div className="flex items-center gap-2">
-//         <UserGroupIcon className="text-orange-500 h-6 w-6 animate-pulse" />
-//         <span className="text-xl font-bold">Trustify</span>
-//       </div>
-      
-//       <nav className="hidden md:flex items-center gap-6">
-//         <Link href="#about" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-//           About
-//         </Link>
-//         <Link href="#features" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-//           Why us?
-//         </Link>
-//         <Link href="#faq" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-//           FAQs
-//         </Link>
-//       </nav>
-      
-//       <div className="flex items-center gap-4">
-//         <Link href="/login" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
-//           Log In
-//         </Link>
-//         <Button className="bg-orange-500 hover:bg-orange-600 transition-transform duration-300 hover:scale-105">
-//           Get Started
-//         </Button>
-//       </div>
-//     </header>
-//   );
-// }

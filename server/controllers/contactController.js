@@ -1,12 +1,11 @@
 import * as driver from '../neo4j/neo4j.js';
-import { isAuthenticated } from '../middlewares/authMiddleware.js';
 import express from "express";
 const router = express.Router();
 
 export const getContacts = async (req, res) => {
     const session = driver.getDriver().session();
     try {
-        const userId = req.body.id; // Extract user email from request body
+        const userId = req.user.id; 
         // console.log("userId", userId);
 
         const query = `
@@ -30,5 +29,4 @@ export const getContacts = async (req, res) => {
         await session.close();
     }
 };
-
 

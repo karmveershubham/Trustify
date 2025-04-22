@@ -1,6 +1,10 @@
 import * as driver from '../neo4j/neo4j.js'; // Import Neo4j driver
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 
 // Login Function
 export const login = async (req, res) => {
@@ -15,8 +19,8 @@ export const login = async (req, res) => {
     // Fetch user with explicit properties
     const result = await session.run(
       `MATCH (u:User {email: $email}) 
-       RETURN u.id AS id, u.email AS email, u.name AS name, u.mobile_no AS mobile_no, 
-              u.profile_picture AS profile_picture, u.password AS password`,
+       RETURN u.id AS id, u.email AS email, u.name AS name, u.mobileNo AS mobile_no, 
+              u.profileImg AS profile_picture, u.trustScore AS trust_score, u.password AS password`,
       { email }
     );
 
@@ -42,12 +46,15 @@ export const login = async (req, res) => {
 
     // Set cookies
     res.cookie("token", token, {
+      path: '/',
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "Production",   
+      sameSite: 'None',
       maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.cookie("is_auth", true, {
+      path: '/',
       httpOnly: false,
       secure: false,
       maxAge: 24 * 60 * 60 * 1000,
@@ -93,12 +100,14 @@ export const userProfile = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
-        mobile_no: user.mobile_no || "",
-        profile_picture: user.profile_picture || "",
+        mobile_no: user.mobileNo || "",
+        profile_picture: user.profileImg || "",
+        trust_score: user.trustScore || 0,
+        created_at: user.createdAt || "",
+        location: user.location || "",
       },
       status: "success",
       message: "Profile fetched successfully",
-      is_auth: true, // Remove token if it's not available
     });
 
   } catch (error) {

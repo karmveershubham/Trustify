@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { RootState, useAppDispatch, useAppSelector } from "@/services/store";
 import { fetchUser, logout } from "@/services/slices/authSlices";
-import { toast } from "react-hot-toast"; 
+import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
@@ -25,6 +25,8 @@ import {
   LockIcon,
   LogOutIcon
 } from "lucide-react";
+import profile from '@/../../public/images/profile.png'
+import Link from "next/link";
 
 type EditFieldType = 'username' | 'phone' | 'password';
 
@@ -73,17 +75,27 @@ export default function ProfilePage() {
     ); // Simple loading indicator
   }
   
+  const joinedDate = user?.created_at ? new Date(
+    user.created_at.year.low,
+    user.created_at.month.low - 1,
+    user.created_at.day.low
+  ).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }): null;
+
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6 max-w-7xl">
+    <div className="container mx-auto py-8 px-4 md:px-6 max-w-screen-xl mt-16">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left Column - Profile Info */}
-        <div className="md:col-span-1">
-          <div className="bg-slate-50 p-6 rounded-lg shadow-sm flex flex-col items-center">
+        <div className="md:col-span-1 ">
+          <div className="bg-slate-100 p-6 rounded-lg shadow-sm flex flex-col items-center">
             <div className="relative">
               <Avatar className="h-32 w-32 mb-2">
                 <div className="relative h-full w-full">
                   <Image 
-                    src={user.profileImage || "/profile.png"}
+                    src={user?.profile_picture || "/images/profile.png"}
                     alt="Profile" 
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
@@ -97,11 +109,11 @@ export default function ProfilePage() {
               </Badge>
             </div>
             
-            <h1 className="text-2xl font-bold mt-4 mb-1 text-center">{user.username}</h1>
+            <h1 className="text-2xl font-bold mt-4 mb-1 text-center">{user?.name}</h1>
             
             <div className="flex items-center mb-4">
               <StarIcon className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-              <span className="font-semibold ml-1">{user.rating || "4.8"}</span>
+              <span className="font-semibold ml-1">{user?.trust_score || "4.8"}</span>
               <span className="text-gray-500 ml-1">({user.reviewCount || "47"} reviews)</span>
             </div>
             
@@ -111,7 +123,7 @@ export default function ProfilePage() {
                 <div className="text-sm text-gray-500">Sold</div>
               </div>
               <div className="p-3">
-                <div className="font-bold">{user.rating || "4.9"}</div>
+                <div className="font-bold">{user?.trust_score || "4.9"}</div>
                 <div className="text-sm text-gray-500">Rating</div>
               </div>
             </div>
@@ -120,17 +132,17 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between text-gray-700 w-full">
                 <div className="flex items-center">
                   <UserIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                  <span>{user.username}</span>
+                  <span>{user?.name}</span>
                 </div>
-                <EditProfileDialog type="username" currentValue={user.username} />
+                <EditProfileDialog type="username" currentValue={user?.name} />
               </div>
               
               <div className="flex items-center justify-between text-gray-700 w-full">
                 <div className="flex items-center">
                   <PhoneIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                  <span>{user.phone || "(+91)12345-67890"}</span>
+                  <span>{user?.mobile_no || "(+91)12345-67890"}</span>
                 </div>
-                <EditProfileDialog type="phone" currentValue={user.phone} />
+                <EditProfileDialog type="phone" currentValue={user?.mobile_no} />
               </div>
               
               <div className="flex items-center justify-between text-gray-700 w-full">
@@ -141,26 +153,27 @@ export default function ProfilePage() {
                 <EditProfileDialog type="password" />
               </div>
               
-              <div className="flex items-center text-gray-700">
+              <div className="flex items-center text-gray-700 ">
                 <MapPinIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                <span>{user.location || "Delhi, India"}</span>
+                <span>{user?.location || "Delhi, India"}</span>
               </div>
               
               <div className="flex items-center text-gray-700">
                 <ClockIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                <span>Joined since {user.joinedDate || "Jan 2025"}</span>
+                
+                <span>Joined since { joinedDate ||"Jan 2025"}</span> 
               </div>
             </div>
             
-            <div className="mt-6 w-full grid grid-cols-6 gap-2">
-              <Button className="col-span-3 bg-black hover:bg-gray-800 text-white">
-                Message
+            <div className="mt-6 w-full flex justify-around items-center space-x-4">
+              <Button className=" w-full bg-green-600 hover:bg-green-700 text-white">
+                <Link href='/list-product'>Sell Products </Link>
               </Button>
-              <Button variant="outline" size="icon" className="col-span-1">
-                <Share2Icon className="h-5 w-5" />
-              </Button>
+              {/* <Button variant="outline" size="icon" className="col-span-1">
+                <Share2Icon className="h-6 w-6" />
+              </Button> */}
               <Button 
-                className="col-span-2 bg-red-500 hover:bg-red-600 text-white"
+                className=" bg-red-500 hover:bg-red-600 text-white"
                 onClick={handleLogout}
                 disabled={isLoading}
               >
@@ -224,7 +237,7 @@ export default function ProfilePage() {
                     price={item.price}
                     timeAgo={item.timeAgo}
                     condition={item.condition}
-                    imageUrl={item.imageUrl}
+                    imageUrl={item.imageUrl}   //replaced by image url from the item object
                   />
                 ))
               ) : (
