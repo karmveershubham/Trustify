@@ -6,10 +6,10 @@ import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/lib/constant";
-import toast from "react-hot-toast";
+import { toast } from 'sonner';
 
 interface Product {
-   id: string;
+  id: string;
   name: string;
   description: string;
   listed_date: string;
@@ -74,77 +74,77 @@ export default function ProductPage() {
     return 0;
   });
 
-
   if (loading) return <div className="text-center mt-10">Loading products...</div>;
 
   return (
     <div className="min-h-screen">
       <h1 className="text-3xl font-semibold text-center mt-20 mb-6">Products</h1>
-      <div className="flex">
-      <div className="w-1/4 p-6 ">
-         {/* Sidebar */}
-        <motion.div
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className=" bg-white p-6 rounded-lg"
-        >
-          <h2 className="text-xl font-bold mb-4">Filters</h2>
+      
+      <div className="container mx-auto flex flex-row">
+        {/* Sidebar */}
+        <div className="w-1/4 p-6">
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white p-6 rounded-lg"
+          >
+            <h2 className="text-xl font-bold mb-4">Filters</h2>
 
-          {/* Category Filter */}
-          <div className="mb-4">
-            <h3 className="text-lg font-medium mb-2">Category</h3>
-            <ul>
-              {categories.map((category) => (
-                <li
-                  key={category}
-                  onClick={() => handleFilter(category)}
-                  className={`cursor-pointer p-2 rounded-md transition-all ${
-                    selectedCategory === category ? "bg-blue-500 text-white" : "hover:bg-gray-300"
-                  }`}
-                >
-                  {category}
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Category Filter */}
+            <div className="mb-4">
+              <h3 className="text-lg font-medium mb-2">Category</h3>
+              <ul>
+                {categories.map((category) => (
+                  <li
+                    key={category}
+                    onClick={() => handleFilter(category)}
+                    className={`cursor-pointer p-2 rounded-md transition-all ${
+                      selectedCategory === category ? "bg-blue-500 text-white" : "hover:bg-gray-300"
+                    }`}
+                  >
+                    {category}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Sorting Options */}
-          <div>
-            <h3 className="text-lg font-medium mb-2">Sort By</h3>
-            <select
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 transition"
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-            >
-              <option value="">Select...</option>
-              <option value="priceLow">Price: Low to High</option>
-              <option value="priceHigh">Price: High to Low</option>
-              <option value="dateNew">Newest First</option>
-              <option value="dateOld">Oldest First</option>
-            </select>
-          </div>
-        </motion.div>
-      </div>
-
-      <div className="container mx-auto p-6 flex gap-6">
+            {/* Sorting Options */}
+            <div>
+              <h3 className="text-lg font-medium mb-2">Sort By</h3>
+              <select
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 transition"
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+              >
+                <option value="">Select...</option>
+                <option value="priceLow">Price: Low to High</option>
+                <option value="priceHigh">Price: High to Low</option>
+                <option value="dateNew">Newest First</option>
+                <option value="dateOld">Oldest First</option>
+              </select>
+            </div>
+          </motion.div>
+        </div>
 
         {/* Product Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className=" w- 3/4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-        >
-          {sortedProducts.length > 0 ? (
-            sortedProducts.map((product) => <ProductCard key={product.id} product={product} />)
-          ) : (
-            <p>No products available</p>
-          )}
-        </motion.div>
+        <div className="w-3/4 p-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
+          >
+            {sortedProducts.length > 0 ? (
+              sortedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              <p>No products available</p>
+            )}
+          </motion.div>
+        </div>
       </div>
-    </div>
-
     </div>
   );
 }

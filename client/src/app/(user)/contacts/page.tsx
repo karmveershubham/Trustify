@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/lib/constant";
-import toast from "react-hot-toast";
+import {toast} from "sonner";
 
 const ContactsPage = () => {
     const [contacts, setContacts] = useState<string[]>([]);

@@ -10,7 +10,7 @@ import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/lib/constant";
-import toast from "react-hot-toast";
+import { toast } from 'sonner';
 import { loginSchema } from "@/validations/schemas";
 import { useAppDispatch, useAppSelector } from "@/services/store";
 
@@ -47,15 +47,16 @@ export default function Signin() {
       setIsLoading(true);
       
       // Dispatch login action and get the returned user data
-      const resultAction = await dispatch(login(formData)).unwrap();
+      const user = await dispatch(login(formData)).unwrap();
       
-      console.log("Login successful, User Data:", resultAction); // Debugging log
+      console.log("Login successful, User Data:", user); // Debugging log
   
-      if (resultAction?.userId) {
+      if (user?.id) {
         toast.success("Login successful!");
         
         // Pass userId in the URL when redirecting to profile
-        router.push(`/profile?userId=${resultAction.userId}`);
+        router.push(`/profile?userId=${user.id}`);
+        router.push(`/profile`);
       } else {
         toast.error("User ID not found in response.");
       }
