@@ -74,11 +74,19 @@ export default function ProductPage() {
     return 0;
   });
 
-  if (loading) return <div className="text-center mt-10">Loading products...</div>;
-
+  if (loading) {
+    return (
+      <div className="container mx-auto p-4 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen">
-      <h1 className="text-3xl font-semibold text-center mt-20 mb-6">Products</h1>
+      <h1 className="text-3xl font-semibold text-center mt-24 mb-6">Products</h1>
       
       <div className="container mx-auto flex flex-row">
         {/* Sidebar */}
