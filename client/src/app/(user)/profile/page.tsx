@@ -167,7 +167,8 @@ export default function ProfilePage() {
             
             <div className="mt-6 w-full flex justify-around items-center space-x-4">
               <Button className=" w-full bg-green-600 hover:bg-green-700 text-white">
-                <Link href='/list-product'>Sell Products </Link>
+              <Link href={`/list-product?userId=${user.id}`}>Sell Products</Link>
+
               </Button>
               {/* <Button variant="outline" size="icon" className="col-span-1">
                 <Share2Icon className="h-6 w-6" />
