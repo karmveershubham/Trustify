@@ -11,8 +11,10 @@ interface ProductCardProps {
     description: string;
     listed_date: string;
     category: string;
-    price: any; // <- allow any for now since Neo4j might return an object
-    images: Array<string>;
+    price: any; // Neo4j integer or regular number
+    images: string[];
+    seller: string; // Seller information
+    verifiedBy: string; // Verification info
   };
 }
 
@@ -32,6 +34,8 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   // Extract category or default
   const category = product.category || "SPORTS";
+  const images = product.images.length > 0 ? product.images : ["/placeholder.jpg"]; // Fallback image
+  const listedDate = new Date(product.listed_date).toLocaleDateString();
 
   const handleCardClick = () => {
     router.push(`/products/${product.id}`);
@@ -42,8 +46,14 @@ export default function ProductCard({ product }: ProductCardProps) {
     setIsFavorite(!isFavorite);
   };
 
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click from triggering
+  const handleBuyClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Add buy now logic here
+  };
+
+  const handleVerifyClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Add verification logic here
   };
 
   return (
@@ -53,7 +63,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       <div className="relative">
         <Image
-          src={product.images[0]}
+          src={images[0]}
           alt={product.name}
           width={300}
           height={180}
@@ -78,7 +88,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-3">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">{product.name}</h2>
-          <h4 className="text-sm text-gray-500">{String(product.listed_date)}</h4>
+          <h4 className="text-sm text-gray-500">{listedDate}</h4>
         </div>
 
         <div className="text-xl font-bold mt-0.5">${priceValue.toLocaleString()}</div>
@@ -87,19 +97,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex mt-3 gap-2">
           <button 
             className="bg-blue-600 text-white text-sm px-3 py-1.5 rounded font-medium flex-1 hover:bg-blue-700 transition-colors"
-            onClick={(e) => {
-              handleButtonClick(e);
-              // Additional buy now logic
-            }}
+            onClick={handleBuyClick}
           >
             Buy Now
           </button>
           <button 
             className="bg-gray-200 text-gray-800 text-sm px-3 py-1.5 rounded font-medium hover:bg-gray-300 transition-colors"
-            onClick={(e) => {
-              handleButtonClick(e);
-              // Verification logic
-            }}
+            onClick={handleVerifyClick}
           >
             Verify Product
           </button>
@@ -107,12 +111,12 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200">
           <div className="text-xs">
-            <div className="font-medium text-[11px]">Verified By – Pratiksha Dixit</div>
-            <div className="text-gray-600 text-[10px] mt-0.5">Seller – Aniket Chaurasia</div>
+            <div className="font-medium text-[11px]">Verified By – {product.verifiedBy}</div>
+            <div className="text-gray-600 text-[10px] mt-0.5">Seller – {product.seller}</div>
           </div>
           <button 
             className="bg-white border border-gray-300 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
-            onClick={handleButtonClick}
+            onClick={handleVerifyClick}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />

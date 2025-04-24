@@ -1,5 +1,5 @@
 import express from 'express';
-import cors from 'cors';
+
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import authRoute from './routes/authRoutes.js';
@@ -13,9 +13,11 @@ const app = express();
 app.use(express.json());
 
 // Set up CORS
+import cors from 'cors';
+
 app.use(cors({
-    origin: process.env.FRONTEND_HOST,
-    credentials: true,
+  origin: 'http://localhost:3000', // your frontend origin
+  credentials: true                // 🔥 allows cookies to be sent
 }));
 
 app.use(cookieParser());

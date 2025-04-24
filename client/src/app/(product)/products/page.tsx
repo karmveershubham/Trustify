@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
@@ -31,34 +31,49 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/listings/products`, {
+        console.log("Sending fetch request to:", `${API_URL}/api/listings/products`);
+        const response = await fetch('http://localhost:8080/api/listings/products', {
           method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          credentials: "include", // ✅ needed to send cookies
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
-
+  
+        console.log("Response status:", response.status);
+  
+        // Check if response status is not OK
         if (!response.ok) {
+          console.error(`Failed to fetch products. Status code: ${response.status}`);
           throw new Error("Failed to fetch products");
         }
-
+  
         const data: { products: Product[] } = await response.json();
-        setProducts(data.products);
-        setFilteredProducts(data.products);
-
-        // Extract unique categories
-        const uniqueCategories: string[] = ["All", ...Array.from(new Set(data.products.map((p) => p.category)))];
-        setCategories(uniqueCategories);
+        console.log("Fetched data:", data);
+  
+        // Ensure 'products' is an array
+        if (Array.isArray(data.products)) {
+          const productList = data.products.map((item) => item.products).flat(); // Flattening the nested products
+          setProducts(productList);
+          setFilteredProducts(productList);
+  
+          // Extract unique categories
+          const uniqueCategories: string[] = ["All", ...Array.from(new Set(productList.map((p) => p.category)))];
+          setCategories(uniqueCategories);
+        } else {
+          throw new Error("Products data is not an array");
+        }
       } catch (error) {
         toast.error("Failed to fetch products.");
-        console.error("Failed to fetch products:", error);
+        console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchProducts();
   }, []);
-
+  
   // Filtering function
   const handleFilter = (category: string) => {
     setSelectedCategory(category);
@@ -66,13 +81,15 @@ export default function ProductPage() {
   };
 
   // Sorting function
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortOption === "priceLow") return a.price - b.price;
-    if (sortOption === "priceHigh") return b.price - a.price;
-    if (sortOption === "dateNew") return new Date(b.listed_date).getTime() - new Date(a.listed_date).getTime();
-    if (sortOption === "dateOld") return new Date(a.listed_date).getTime() - new Date(b.listed_date).getTime();
-    return 0;
-  });
+  const sortedProducts = Array.isArray(filteredProducts)
+    ? [...filteredProducts].sort((a, b) => {
+        if (sortOption === "priceLow") return a.price - b.price;
+        if (sortOption === "priceHigh") return b.price - a.price;
+        if (sortOption === "dateNew") return new Date(b.listed_date).getTime() - new Date(a.listed_date).getTime();
+        if (sortOption === "dateOld") return new Date(a.listed_date).getTime() - new Date(b.listed_date).getTime();
+        return 0;
+      })
+    : [];
 
   if (loading) {
     return (
@@ -84,10 +101,11 @@ export default function ProductPage() {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen">
       <h1 className="text-3xl font-semibold text-center mt-24 mb-6">Products</h1>
-      
+
       <div className="container mx-auto flex flex-row">
         {/* Sidebar */}
         <div className="w-1/4 p-6">
