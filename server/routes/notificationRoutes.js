@@ -1,8 +1,10 @@
 import express from 'express';
-import { getUserNotifications } from '../controllers/notificationController.js';
+import { isAuthenticated } from '../middlewares/authMiddleware.js';
+import { getUserNotifications, clearAllNotifications } from '../controllers/notificationController.js';
 
 const router = express.Router();
 
-router.get('/:userId', getUserNotifications);
+router.get('/notifications', isAuthenticated, getUserNotifications);
+router.delete('/notifications', isAuthenticated, clearAllNotifications);
 
 export default router;

@@ -2,6 +2,7 @@ import { getDriver } from '../neo4j/neo4j.js';
 import pQuery from '../models/productQuery.js';
 import { generalAttributes, categoryAttributes } from '../models/productAttribute.js';
 import cloudinary from '../config/cloudinary.js';
+import { createAndDispatchNotifications } from './notificationController.js';
 
 export function validateProductData(req, category) {
     const missingFields = [];
@@ -82,6 +83,14 @@ export const addProduct = async (req, res) => {
       }
 
       const product = productNode.properties;
+      console.log('Product:', product); 
+
+      await createAndDispatchNotifications({
+        senderId: req.body.userId,
+        productId: product.id,
+        io: req.app.get('io'),
+      });
+
       res.status(201).json({ success: true, product });
   } catch (error) {
       console.error('Error while adding product: ', error);
