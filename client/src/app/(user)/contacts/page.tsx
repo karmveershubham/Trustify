@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { API_URL } from "@/lib/constant";
 import {toast} from "sonner";
 
 const ContactsPage = () => {
@@ -15,7 +14,7 @@ const ContactsPage = () => {
     useEffect(() => {
         const fetchContacts = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/contacts`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contacts`, {
                     method: "GET",
                     credentials: "include", 
                 });

@@ -5,7 +5,7 @@ import { isAuthenticated } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/add-product', addProduct);
+router.post('/add-product', upload.single('image'), addProduct);
 router.get('/products', isAuthenticated, getProduct);
 
 export default router;

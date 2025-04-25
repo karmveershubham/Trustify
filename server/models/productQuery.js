@@ -1,4 +1,4 @@
-const querie = `
+const queries = `
 CALL apoc.create.node(
   ['Product', $label], 
   {
@@ -20,4 +20,4 @@ SET r.isSold = false
 RETURN p
 `;
 
-export default querie;
+export default queries;

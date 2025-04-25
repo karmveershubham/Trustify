@@ -9,7 +9,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { API_URL } from "@/lib/constant";
 import { toast } from 'sonner';
 import { loginSchema } from "@/validations/schemas";
 import { useAppDispatch, useAppSelector } from "@/services/store";
