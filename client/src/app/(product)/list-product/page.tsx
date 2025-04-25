@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 // Main categories
 enum CategoryGroup {
@@ -336,11 +337,11 @@ const ListingPage: React.FC = () => {
     e.preventDefault();
 
     if (!selectedCategoryGroup || !selectedSubCategory) {
-      alert("Please select category and subcategory");
+      toast.message("Please select category and subcategory");
       return;
     }
     if (!image) {
-      alert("Please upload an image");
+      toast.error("Please upload an image");
       return;
     }
 
@@ -377,13 +378,13 @@ const ListingPage: React.FC = () => {
       });
       const result = await response.json();
       if (response.ok) {
-        alert("Product added successfully!");
+        toast.success("Product added successfully!");
         router.push(`/profile?userId=${userId}`);
       } else {
-        alert(result.message || "Error adding product");
+        toast.error(result.message || "Error adding product");
       }
     } catch (error) {
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 

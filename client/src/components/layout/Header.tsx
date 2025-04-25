@@ -16,8 +16,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Contact, LogOut, ShoppingBag, ShoppingBagIcon, ShoppingCart, User } from 'lucide-react';
-import { FaProductHunt } from 'react-icons/fa6';
+import { Contact, Heart, LogOut, ShoppingBag, ShoppingCart, User } from 'lucide-react';
+import NotificationButton from './NotificationButton';
 
 export default function Header() {
   const user = useAppSelector((state: RootState) => state.auth.user);
@@ -56,7 +56,7 @@ export default function Header() {
         {/* Navigation Links */}
         {user ? (
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/dashboard" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
+            <Link href="/sell-product" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
               Dashboard
             </Link>
             <Link href="/profile" className="text-sm font-medium hover:underline hover:text-orange-500 transition-colors duration-300">
@@ -87,7 +87,12 @@ export default function Header() {
         <div className="flex items-center gap-4">
           {user ? (
             <>
-            <ShoppingCart className="h-7 w-7 text-gray-6 cursor-pointer" />
+            
+            <Link href="/wishlist">
+              {/* <ShoppingCart className="h-7 w-7 text-gray-6 cursor-pointer mb-2" /> */}
+              <Heart className="h-7 w-7 text-gray-600 cursor-pointer mb-2 hover:scale-105 transition-transform" />
+            </Link>
+            <NotificationButton userId = {user?.id}/>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex flex-col items-center space-y-1 outline-none">
                 <Avatar className="h-9 w-9 border-2 border-green-500 hover:scale-105 transition-transform">

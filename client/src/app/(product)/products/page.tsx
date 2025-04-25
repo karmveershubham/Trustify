@@ -5,7 +5,6 @@ import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { API_URL } from "@/lib/constant";
 import { toast } from 'sonner';
 
 interface Product {
@@ -31,8 +30,8 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log("Sending fetch request to:", `${API_URL}/api/listings/products`);
-        const response = await fetch('http://localhost:8080/api/listings/products', {
+        
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/products`, {
           method: "GET",
           credentials: "include", // ✅ needed to send cookies
           headers: {

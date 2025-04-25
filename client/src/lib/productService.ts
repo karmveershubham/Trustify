@@ -14,7 +14,7 @@ export interface Product {
 // Function to get a product by ID (with an actual API call)
 export async function getProductById(id: string): Promise<Product> {
   try {
-    const response = await fetch(`/api/products/${id}`); // Replace with your actual API endpoint
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`);  // create get product by id 
     if (!response.ok) {
       throw new Error("Product not found");
     }
@@ -40,7 +40,7 @@ export async function getProductById(id: string): Promise<Product> {
 // Function to get all products (with an actual API call)
 export async function getAllProducts(): Promise<Product[]> {
   try {
-    const response = await fetch("http://localhost:8080/api/listings/products"); // Replace with your actual API endpoint
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/products`); // Replace with your actual API endpoint
     if (!response.ok) {
       throw new Error("Failed to fetch products");
     }

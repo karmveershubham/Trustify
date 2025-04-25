@@ -113,7 +113,11 @@ export default function ProfilePage() {
             
             <div className="flex items-center mb-4">
               <StarIcon className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-              <span className="font-semibold ml-1">{user?.trust_score || "4.8"}</span>
+              <span className="font-semibold ml-1">
+                {typeof user?.trust_score === "object" && user.trust_score ? 
+                  ((user.trust_score.low + user.trust_score.high) / 2).toFixed(1) : 
+                  user?.trust_score || "4.8"}
+              </span>
               <span className="text-gray-500 ml-1">({user.reviewCount || "47"} reviews)</span>
             </div>
             
@@ -123,7 +127,11 @@ export default function ProfilePage() {
                 <div className="text-sm text-gray-500">Sold</div>
               </div>
               <div className="p-3">
-                <div className="font-bold">{user?.trust_score || "4.9"}</div>
+                <span className="font-semibold ml-1">
+                  {typeof user?.trust_score === "object" && user.trust_score ? 
+                    ((user.trust_score.low + user.trust_score.high) / 2).toFixed(1) : 
+                    user?.trust_score || "4.8"}
+                </span>
                 <div className="text-sm text-gray-500">Rating</div>
               </div>
             </div>

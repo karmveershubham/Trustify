@@ -2,31 +2,7 @@ import { getDriver } from '../neo4j/neo4j.js';
 import pQuery from '../models/productQuery.js';
 import { generalAttributes, categoryAttributes } from '../models/productAttribute.js';
 import cloudinary from '../config/cloudinary.js';
-
-
-
-export function prepareProductData(req, category) {
-    const queryParams = {};
-    const details = {};
-
-    generalAttributes.forEach(field => {
-        if (req.body[field] !== undefined) {
-            queryParams[field] = req.body[field];
-        }
-    });
-
-    categoryAttributes[category].forEach(field => {
-        if (req.body[field] !== undefined) {
-            details[field] = req.body[field];
-        }
-    });
-
-    queryParams.details = JSON.stringify(details);
-    queryParams.userId = req.body.userId;
-    queryParams.label = category;
-
-    return queryParams;
-}
+import { createAndDispatchNotifications } from './notificationController.js';
 
 export function validateProductData(req, category) {
     const missingFields = [];
@@ -37,8 +13,10 @@ export function validateProductData(req, category) {
         }
     });
 
+    const details = JSON.parse(req.body.details) || {};
+    console.log("detasissssls", details);
     categoryAttributes[category].forEach(field => {
-        if (req.body[field] === undefined) {
+        if (details[field] === undefined) {
             missingFields.push(field);
         }
     });
@@ -54,37 +32,37 @@ export function validateProductData(req, category) {
 export const addProduct = async (req, res) => {
   let session;
   try {
+        
+      console.log("reqbodyy", req.body);
       const { subCategory } = req.body;
 
       // Check for valid category
       if (!categoryAttributes[subCategory]) {
+            console.error('Invalid category:', subCategory);
           return res.status(400).json({ error: "Invalid category" });
       }
 
       // Validate product data
       const validation = validateProductData(req, subCategory);
       if (!validation.isValid) {
+            console.error('Validation failed:', validation.missingFields);
           return res.status(400).json({
               error: `Missing required fields: ${validation.missingFields.join(', ')}`
           });
       }
 
       // Upload image to Cloudinary
-      let imageUrl;
-      if (req.body.image) {
-          const uploadedImage = await cloudinary.uploader.upload(req.body.image, {
-              folder: 'product_images',  // You can organize images in folders
-          });
-          imageUrl = uploadedImage.secure_url;  // URL to the uploaded image
-      } else {
-          return res.status(400).json({ error: "Image is required" });
+
+      const images = req.file && req.file.path ? [req.file.path] : [];
+      if (images.length === 0) {
+        return res.status(400).json({ status: "failed", message: "All fields, including images, are required" });
       }
-
-      // Prepare product data for Neo4j
-      const queryParams = prepareProductData(req, subCategory, imageUrl);
-      console.log('Query Parameters:', queryParams);  // Log the query parameters
-
-      // Run the query to add product to Neo4j
+      
+    
+      req.body.image=images;
+      // console.log("reqqq bodyyyy", req.body);
+      const queryParams = req.body;
+    
       session = getDriver().session();
       const query = pQuery;
       const result = await session.run(query, queryParams);
@@ -105,6 +83,14 @@ export const addProduct = async (req, res) => {
       }
 
       const product = productNode.properties;
+      console.log('Product:', product); 
+
+      await createAndDispatchNotifications({
+        senderId: req.body.userId,
+        productId: product.id,
+        io: req.app.get('io'),
+      });
+
       res.status(201).json({ success: true, product });
   } catch (error) {
       console.error('Error while adding product: ', error);
@@ -115,6 +101,7 @@ export const addProduct = async (req, res) => {
       }
   }
 };
+
 export const getProduct = async (req, res) => {
   console.log("Request received");
 
@@ -183,4 +170,30 @@ export const getProduct = async (req, res) => {
       await session.close();
     }
   }
+};
+
+export const getProductById = async (req, res) => {
+    const { userId } = req.user?.id;
+    const { productId } = req.params; // Assuming the product ID is passed as a URL parameter
+    let session;
+    try {
+        session = getDriver().session();
+        const query = `
+            MATCH (p:Product {id: $userId})
+            RETURN p
+        `;
+        const result = await session.run(query, { userId });
+        if (result.records.length === 0) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        const product = result.records[0].get('p').properties;
+        res.status(200).json({ success: true, product });
+    } catch (error) {
+        console.error('Error retrieving product:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        if (session) {
+            await session.close();
+        }
+    }
 };
