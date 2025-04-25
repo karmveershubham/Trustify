@@ -101,40 +101,95 @@ export const addProduct = async (req, res) => {
       }
   }
 };
-export const getProduct = async (req, res) => {
-    console.log("req received");
 
-    const { mobileNo } = req.query;
-    console.log(mobileNo);
+export const getProduct = async (req, res) => {
+  console.log("Request received");
+
+  // Get the logged-in user's userId from the request (authenticated user)
+  const userId = req.user?.id; // Assuming `userId` is added to the `req.user` after authentication
+
+  // Check if the user is authenticated
+  if (!userId) {
+    return res.status(400).json({ status: "failed", message: "User authentication required" });
+  }
+
+  let session;
+  try {
+    session = getDriver().session();
+    
+    // Cypher query to fetch the products from friends and friends of friends
+    const query = `
+      MATCH (u:User {id: $userId})
+      MATCH (u)-[:HAS_CONTACT]->(contacts)
+      MATCH (contacts)-[:HAS_CONTACT]->(u)
+      OPTIONAL MATCH (contacts)-[:LISTED]->(p1:Product)
+      OPTIONAL MATCH (contacts)-[:HAS_VERIFIED]->(p2:Product)
+      WITH contacts, 
+           contacts.name AS ContactName, 
+           contacts.mobileNo AS ContactMobile, 
+           COLLECT(DISTINCT p1) AS Products1, 
+           COLLECT(DISTINCT p2) AS Products2
+      RETURN ContactName, 
+             ContactMobile, 
+             apoc.coll.union(coalesce(Products1, []), coalesce(Products2, [])) AS Products;
+    `;
+    
+    // Execute the query with the userId extracted from the authenticated user
+    const result = await session.run(query, { userId });
+
+    // Process the query result and format the response
+    const data = result.records.map(record => ({
+      contactName: record.get("ContactName"),
+      contactMobile: record.get("ContactMobile"),
+      products: record.get("Products").map(product => ({
+        id: product.identity.low, // Assuming identity has a low value as the product ID
+        name: product.properties.title, 
+        description: product.properties.description,
+        listed_date: `${product.properties.listingDate.year.low}-${product.properties.listingDate.month.low}-${product.properties.listingDate.day.low}`,
+        category: product.properties.subCategory,
+        price: parseInt(product.properties.price), // Converting price to integer
+        images: product.properties.image || [], // Assuming it's an array of image URLs
+      }))
+    }));
+
+    // Ensure the response is only sent once
+    if (data.length > 0) {
+      res.status(200).json({ success: true, products: data.flat() }); // Flatten if you need a single array of products
+    } else {
+      res.status(404).json({ success: false, message: "No products found" });
+    }
+
+  } catch (error) {
+    console.error('Error retrieving products:', error);
+    // Ensure response is sent only once in case of error
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  } finally {
+    if (session) {
+      await session.close();
+    }
+  }
+};
+
+export const getProductById = async (req, res) => {
+    const { userId } = req.user?.id;
+    const { productId } = req.params; // Assuming the product ID is passed as a URL parameter
     let session;
     try {
         session = getDriver().session();
         const query = `
-       MATCH (u:User {mobileNo: $mobileNo})
-       MATCH (u)-[:HAS_CONTACT]->(contacts)
-       MATCH (contacts)-[:HAS_CONTACT]->(u) 
-       OPTIONAL MATCH (contacts)-[:LISTED]->(p1:Product)
-       OPTIONAL MATCH (contacts)-[:HAS_VERIFIED]->(p2:Product)
-       WITH contacts, 
-       contacts.name AS ContactName, 
-       contacts.mobileNo AS ContactMobile, 
-       COLLECT(DISTINCT p1) AS Products1, 
-       COLLECT(DISTINCT p2) AS Products2
-       RETURN ContactName, 
-            ContactMobile, 
-            apoc.coll.union(coalesce(Products1, []), coalesce(Products2, [])) AS Products;
-     `;
-        const result = await session.run(query, { mobileNo });
-        const data = result.records.map(record => ({
-            contactName: record.get("ContactName"),
-            contactMobile: record.get("ContactMobile"),
-            products: record.get("Products")
-        }));
-        console.log(data);
-
-        res.status(200).json({ success: true, data });
+            MATCH (p:Product {id: $userId})
+            RETURN p
+        `;
+        const result = await session.run(query, { userId });
+        if (result.records.length === 0) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        const product = result.records[0].get('p').properties;
+        res.status(200).json({ success: true, product });
     } catch (error) {
-        console.error('Error retrieving products:', error);
+        console.error('Error retrieving product:', error);
         res.status(500).json({ error: 'Internal server error' });
     } finally {
         if (session) {
