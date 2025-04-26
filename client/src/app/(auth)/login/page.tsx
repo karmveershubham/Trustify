@@ -53,9 +53,8 @@ export default function Signin() {
       if (user?.id) {
         toast.success("Login successful!");
         
-        // Pass userId in the URL when redirecting to profile
-        router.push(`/profile?userId=${user.id}`);
-        router.push(`/profile`);
+        // Redirect to home page
+        router.push('/');
       } else {
         toast.error("User ID not found in response.");
       }
@@ -70,7 +69,7 @@ export default function Signin() {
   
   
   return (
-    <div className="min-h-screen bg-amber-50 flex items-center justify-center">
+    <div className="min-h-screen bg-blue-50 flex items-center justify-center">
       <div className="mt-8 flex justify-center m-10">
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex items-center p-8 mx-4">
           {/* Left Section with Image */}

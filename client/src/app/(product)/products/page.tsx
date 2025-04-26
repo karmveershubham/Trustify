@@ -105,24 +105,24 @@ export default function ProductPage() {
 
       <div className="container mx-auto flex flex-row">
         {/* Sidebar */}
-        <div className="w-1/4 p-6">
+        <div className="w-1/4 p-4">
           <motion.div
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="bg-white p-6 rounded-lg"
+            className="bg-white p-4 rounded-lg"
           >
-            <h2 className="text-xl font-bold mb-4">Filters</h2>
+            <h2 className="text-lg font-bold mb-3">Filters</h2>
 
             {/* Category Filter */}
-            <div className="mb-4">
-              <h3 className="text-lg font-medium mb-2">Category</h3>
+            <div className="mb-3">
+              <h3 className="text-base font-medium mb-1.5">Category</h3>
               <ul>
                 {categories.map((category) => (
                   <li
                     key={category}
                     onClick={() => handleFilter(category)}
-                    className={`cursor-pointer p-2 rounded-md transition-all ${
+                    className={`cursor-pointer p-1.5 rounded-md transition-all text-sm ${
                       selectedCategory === category ? "bg-blue-500 text-white" : "hover:bg-gray-300"
                     }`}
                   >
@@ -134,9 +134,9 @@ export default function ProductPage() {
 
             {/* Sorting Options */}
             <div>
-              <h3 className="text-lg font-medium mb-2">Sort By</h3>
+              <h3 className="text-base font-medium mb-1.5">Sort By</h3>
               <select
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full p-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 transition text-sm"
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
               >

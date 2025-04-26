@@ -54,7 +54,7 @@ async function startServer() {
     await initDriver();
     console.log("✅ Neo4j connected");
 
-    const PORT = process.env.APP_PORT || 5000;
+    const PORT = process.env.APP_PORT || 8080;
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });

@@ -56,11 +56,11 @@ export default function FeaturedCards() {
 
       <section className="container mx-auto px-4 py-8 text-center fade-in-up" style={{ animationDelay: '600ms' }}>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Button className="bg-orange-500 hover:bg-orange-600 flex items-center gap-2 transition-transform duration-300 hover:scale-105 shadow-md">
+          <Button className="bg-blue-500 hover:bg-blue-600 flex items-center gap-2 transition-transform duration-300 hover:scale-105 shadow-md">
             <MagnifyingGlassIcon className="h-5 w-5" />
             Browse Items
           </Button>
-          <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50 flex items-center gap-2 transition-transform duration-300 hover:scale-105">
+          <Button variant="outline" className="border-blue-500 text-blue-500 hover:bg-blue-50 flex items-center gap-2 transition-transform duration-300 hover:scale-105">
             <ListBulletIcon className="h-5 w-5" />
             List an item
           </Button>
