@@ -268,7 +268,7 @@ body {
 }
 
 .about-section {
-  @apply container mx-auto px-4 py-16 overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl my-8;
+  @apply container mx-auto px-4 py-16 overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl my-8;
 }
 
 .about-content {
@@ -302,7 +302,7 @@ body {
 
 /* Button styling */
 .about-button {
-  @apply bg-orange-500 hover:bg-orange-600 transition-all duration-300 transform hover:translate-y-[-4px] hover:shadow-lg;
+  @apply bg-blue-500 hover:bg-blue-600 transition-all duration-300 transform hover:translate-y-[-4px] hover:shadow-lg;
 }
 
 /* Right side animation */
@@ -364,12 +364,10 @@ body {
 
 /* Section Styling */
 .download-section {
-  background-color: #FEFBEF;
+  background-color: #EFF6FF;
   padding: 3rem 1.5rem;
   text-align: center;
-  border: 3px #FFA500;
   border-radius: 12px;
-  /* box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1); */
   animation: fadeInUp 1s ease-out;
 }
 
@@ -377,7 +375,7 @@ body {
 .download-button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #FFA500;
+  background-color: #3B82F6;
   color: white;
   font-weight: bold;
   border-radius: 8px;
@@ -385,7 +383,7 @@ body {
 }
 
 .download-button:hover {
-  background-color: #ff8c00;
+  background-color: #2563EB;
   transform: scale(1.1);
 }
 
@@ -393,7 +391,6 @@ body {
 .download-image {
   display: inline-block;
   margin-top: 1rem;
-  /* box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15); */
   border-radius: 10px;
   transition: transform 0.3s ease;
 }

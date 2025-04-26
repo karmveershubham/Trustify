@@ -36,9 +36,9 @@ export default function FaqSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left side - Heading */}
           <div className="md:col-span-1">
-            <p className="text-orange-500 font-medium mb-2 animate-pulse">Faq</p>
+            <p className="text-blue-500 font-medium mb-2 animate-pulse">Faq</p>
             <h2 className="text-4xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
-            <Button className="bg-orange-500 hover:bg-orange-600 flex items-center gap-2 transition-transform duration-300 hover:scale-105 shadow-md">
+            <Button className="bg-blue-500 hover:bg-blue-600 flex items-center gap-2 transition-transform duration-300 hover:scale-105 shadow-md">
               <UserGroupIcon className="h-5 w-5" />
               Join Community
             </Button>

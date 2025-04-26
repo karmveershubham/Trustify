@@ -8,8 +8,8 @@ export default function FeatureDetails() {
         {/* Feature 1 */}
         <div className="bg-white rounded-lg p-6 shadow-sm transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up">
           <div className="mb-4 flex justify-center">
-            <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center transition-transform duration-500 hover:scale-110">
-              <StarIcon className="text-orange-500 h-5 w-5 animate-spin-slow" />
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center transition-transform duration-500 hover:scale-110">
+              <StarIcon className="text-blue-500 h-5 w-5 animate-spin-slow" />
             </div>
           </div>
           <h3 className="text-xl font-semibold text-center mb-3">Verified Contacts</h3>
@@ -21,8 +21,8 @@ export default function FeatureDetails() {
         {/* Feature 2 */}
         <div className="bg-white rounded-lg p-6 shadow-sm transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up" style={{ animationDelay: '200ms' }}>
           <div className="mb-4 flex justify-center">
-            <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center transition-transform duration-500 hover:scale-110">
-              <ShieldCheckIcon className="text-orange-500 h-5 w-5 animate-pulse-slow" />
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center transition-transform duration-500 hover:scale-110">
+              <ShieldCheckIcon className="text-blue-500 h-5 w-5 animate-pulse-slow" />
             </div>
           </div>
           <h3 className="text-xl font-semibold text-center mb-3">Secure Transactions</h3>
@@ -34,8 +34,8 @@ export default function FeatureDetails() {
         {/* Feature 3 */}
         <div className="bg-white rounded-lg p-6 shadow-sm transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up" style={{ animationDelay: '400ms' }}>
           <div className="mb-4 flex justify-center">
-            <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center transition-transform duration-500 hover:scale-110">
-              <StarIcon className="text-orange-500 h-5 w-5 animate-bounce-slow" />
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center transition-transform duration-500 hover:scale-110">
+              <StarIcon className="text-blue-500 h-5 w-5 animate-bounce-slow" />
             </div>
           </div>
           <h3 className="text-xl font-semibold text-center mb-3">Trust Score</h3>
@@ -47,8 +47,8 @@ export default function FeatureDetails() {
         {/* Feature 4 */}
         <div className="bg-white rounded-lg p-6 shadow-sm transition-all duration-700 hover:shadow-lg hover:-translate-y-2 fade-in-up" style={{ animationDelay: '600ms' }}>
           <div className="mb-4 flex justify-center">
-            <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center transition-transform duration-500 hover:scale-110">
-              <CheckCircleIcon className="text-orange-500 h-5 w-5 animate-pulse-slow" />
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center transition-transform duration-500 hover:scale-110">
+              <CheckCircleIcon className="text-blue-500 h-5 w-5 animate-pulse-slow" />
             </div>
           </div>
           <h3 className="text-xl font-semibold text-center mb-3">Quality Assured</h3>

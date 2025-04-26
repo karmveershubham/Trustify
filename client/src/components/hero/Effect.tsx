@@ -16,7 +16,7 @@ export default function Effect() {
     return (
         <h1 className="text-4xl md:text-6xl font-bold mt-3 text-gray-900 leading-tight animate-bounce">
             Buy & Sell Safely Within Your{" "}
-            <span className="text-orange-500 inline-block">
+            <span className="text-blue-500 inline-block">
             {words[index]}
             </span>
         </h1>
