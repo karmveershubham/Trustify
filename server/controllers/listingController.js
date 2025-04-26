@@ -105,10 +105,8 @@ export const addProduct = async (req, res) => {
 export const getProduct = async (req, res) => {
   console.log("Request received");
 
-  // Get the logged-in user's userId from the request (authenticated user)
-  const userId = req.user?.id; // Assuming `userId` is added to the `req.user` after authentication
+  const userId = req.user?.id; // Assuming userId is available after authentication
 
-  // Check if the user is authenticated
   if (!userId) {
     return res.status(400).json({ status: "failed", message: "User authentication required" });
   }
@@ -116,52 +114,55 @@ export const getProduct = async (req, res) => {
   let session;
   try {
     session = getDriver().session();
-    
-    // Cypher query to fetch the products from friends and friends of friends
+
     const query = `
       MATCH (u:User {id: $userId})
-      MATCH (u)-[:HAS_CONTACT]->(contacts)
-      MATCH (contacts)-[:HAS_CONTACT]->(u)
-      OPTIONAL MATCH (contacts)-[:LISTED]->(p1:Product)
-      OPTIONAL MATCH (contacts)-[:HAS_VERIFIED]->(p2:Product)
-      WITH contacts, 
-           contacts.name AS ContactName, 
-           contacts.mobileNo AS ContactMobile, 
-           COLLECT(DISTINCT p1) AS Products1, 
-           COLLECT(DISTINCT p2) AS Products2
-      RETURN ContactName, 
-             ContactMobile, 
-             apoc.coll.union(coalesce(Products1, []), coalesce(Products2, [])) AS Products;
+      MATCH (u)-[:HAS_CONTACT]->(contact:User)
+      
+      OPTIONAL MATCH (contact)-[:LISTED]->(p1:Product)
+      OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(p2:Product)
+
+      WITH 
+        COLLECT(DISTINCT { product: p1, seller: contact.name, verifiedBy: NULL }) + 
+        COLLECT(DISTINCT { product: p2, seller: p2.sellerName, verifiedBy: contact.name }) AS Products
+
+      UNWIND Products AS p
+      RETURN p.product AS product, p.verifiedBy AS verifiedBy, p.seller AS seller
     `;
-    
-    // Execute the query with the userId extracted from the authenticated user
+
     const result = await session.run(query, { userId });
 
-    // Process the query result and format the response
-    const data = result.records.map(record => ({
-      contactName: record.get("ContactName"),
-      contactMobile: record.get("ContactMobile"),
-      products: record.get("Products").map(product => ({
-        id: product.identity.low, // Assuming identity has a low value as the product ID
-        name: product.properties.title, 
-        description: product.properties.description,
-        listed_date: `${product.properties.listingDate.year.low}-${product.properties.listingDate.month.low}-${product.properties.listingDate.day.low}`,
-        category: product.properties.subCategory,
-        price: parseInt(product.properties.price), // Converting price to integer
-        images: product.properties.image || [], // Assuming it's an array of image URLs
-      }))
-    }));
+    const products = [];
 
-    // Ensure the response is only sent once
-    if (data.length > 0) {
-      res.status(200).json({ success: true, products: data.flat() }); // Flatten if you need a single array of products
+    result.records.forEach(record => {
+      const productNode = record.get("product");
+      const verifiedBy = record.get("verifiedBy");
+      const seller = record.get("seller");
+
+      if (productNode) {
+        products.push({
+          id: productNode.properties.id,   // ✅ Correct! (use the real id you saved)
+          name: productNode.properties.title,
+          description: productNode.properties.description,
+          listed_date: `${productNode.properties.listingDate.year.low}-${productNode.properties.listingDate.month.low}-${productNode.properties.listingDate.day.low}`,
+          category: productNode.properties.subCategory,
+          price: parseInt(productNode.properties.price),
+          images: productNode.properties.image || [],
+          verifiedBy: verifiedBy || null,
+          seller: seller || "Unknown"
+        });
+        
+      }
+    });
+
+    if (products.length > 0) {
+      res.status(200).json({ success: true, products });
     } else {
       res.status(404).json({ success: false, message: "No products found" });
     }
 
   } catch (error) {
     console.error('Error retrieving products:', error);
-    // Ensure response is sent only once in case of error
     if (!res.headersSent) {
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -173,27 +174,66 @@ export const getProduct = async (req, res) => {
 };
 
 export const getProductById = async (req, res) => {
-    const { userId } = req.user?.id;
-    const { productId } = req.params; // Assuming the product ID is passed as a URL parameter
-    let session;
-    try {
-        session = getDriver().session();
-        const query = `
-            MATCH (p:Product {id: $userId})
-            RETURN p
-        `;
-        const result = await session.run(query, { userId });
-        if (result.records.length === 0) {
-            return res.status(404).json({ error: 'Product not found' });
-        }
-        const product = result.records[0].get('p').properties;
-        res.status(200).json({ success: true, product });
-    } catch (error) {
-        console.error('Error retrieving product:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    } finally {
-        if (session) {
-            await session.close();
-        }
+  const { id } = req.params;  // Product ID from frontend
+  console.log("Product ID from frontend:", id);
+
+  let session;
+  try {
+    session = getDriver().session();
+
+    const query = `
+      MATCH (p:Product {id: $id})
+      OPTIONAL MATCH (seller:User)-[:LISTED]->(p)
+      OPTIONAL MATCH (verifier:User)-[:HAS_VERIFIED]->(p)
+      RETURN p AS product, seller.name AS seller, verifier.name AS verifiedBy
+    `;
+
+    const result = await session.run(query, { id });
+
+    if (result.records.length === 0) {
+      return res.status(404).json({ error: 'Product not found' });
     }
+
+    const record = result.records[0];
+    const productNode = record.get('product');
+    const verifiedBy = record.get('verifiedBy');
+    const seller = record.get('seller');
+
+    if (!productNode) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const product = productNode.properties;
+
+    // Handle listing date safely
+    const year = product.listingDate?.year?.low || 0;
+    const month = product.listingDate?.month?.low || 0;
+    const day = product.listingDate?.day?.low || 0;
+    const listed_date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    const images = product.image && Array.isArray(product.image) ? product.image : [];
+
+    res.status(200).json({ 
+      success: true, 
+      product: {
+        id: product.id,
+        name: product.title || 'Unknown',
+        description: product.description || 'No description available',
+        listed_date,
+        category: product.subCategory || 'No category',
+        price: parseInt(product.price) || 0,
+        images: images,
+        verifiedBy: verifiedBy || null,
+        seller: seller || "Unknown"
+      }
+    });
+
+  } catch (error) {
+    console.error('Error retrieving product by id:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    if (session) {
+      await session.close();
+    }
+  }
 };

@@ -48,8 +48,9 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const handleBuyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Add buy now logic here
+    router.push(`/products/${product.id}`);  // This navigates to the product details page
   };
+  
 
   const handleVerifyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -111,8 +112,26 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200">
           <div className="text-xs">
-            <div className="font-medium text-[11px]">Verified By – {product.verifiedBy}</div>
-            <div className="text-gray-600 text-[10px] mt-0.5">Seller – {product.seller}</div>
+          <div className="flex items-center gap-1 font-semibold text-blue-600 text-[11px]">
+  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+    <path d="M10 0l2.39 6.91H19l-5.28 3.83L14.77 17 10 13.8 5.23 17l.55-6.26L1 6.91h6.61z" />
+  </svg>
+  <div className="text-xs">
+  {product.verifiedBy ? (
+    <div className="font-medium text-[11px] text-blue-600">
+      Verified By – {product.verifiedBy}
+    </div>
+  ) : (
+    <div className="text-gray-600 text-[10px] mt-0.5">
+      Seller – {product.seller || "Unknown"}
+    </div>
+  )}
+</div>
+
+
+</div>
+
+          
           </div>
           <button 
             className="bg-white border border-gray-300 p-1.5 rounded-full hover:bg-gray-100 transition-colors"

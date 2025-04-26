@@ -5,35 +5,89 @@ export interface Product {
   description: string;
   listed_date: string;
   category: string;
-  price: any; // Neo4j integer or regular number
+  price: number; // Changed to number for easier handling
   images: string[];
   seller: string;
   verifiedBy: string;
 }
 
-// Function to get a product by ID (with an actual API call)
-export async function getProductById(id: string): Promise<Product> {
+// Helper function to parse Neo4j integer safely
+const parsePrice = (price: any): number => {
+  return price && typeof price.toNumber === "function" ? price.toNumber() : price;
+};
+
+// Helper function to handle Date (fallback to current date if invalid)
+const formatDate = (listingDate: any): string => {
+  if (!listingDate || !listingDate.year || !listingDate.month || !listingDate.day) {
+    // Fallback to current date if listingDate is missing
+    const currentDate = new Date();
+    return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+  }
+
+  const year = listingDate.year.low || 0;
+  const month = listingDate.month.low || 0;
+  const day = listingDate.day.low || 0;
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+};
+
+// Corrected function to get a product by ID
+// Corrected function to get a product by ID
+// Corrected function to get a product by ID
+export async function getProductById(id: string): Promise<Product | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`);  // create get product by id 
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/products/${id}`, {
+      method: "GET",
+      headers: token ? {
+        "Authorization": `Bearer ${token}`,
+      } : {},
+      credentials: "include",
+    });
+    
+    console.log("API Response:", response); // Log the response to see the status and body
+    
     if (!response.ok) {
-      throw new Error("Product not found");
+      if (response.status === 404) {
+        console.log("Product not found (404)");
+      }
+      throw new Error(`Product not found (status: ${response.status})`);
+    }
+    
+    const data = await response.json();
+    console.log("Product Data:", data); // Check what data is returned
+    
+   
+    const product = data.product;
+
+    if (!product) {
+      throw new Error("Product data is missing");
     }
 
-    const data = await response.json();
+    // Handle Image (Ensure it's an array even if the backend sends an empty value)
+    const images = Array.isArray(product.images) ? product.images : [];
+    console.log("Images:", images);  // Check if images array is populated
+
+    // Safely handle listingDate (compose "YYYY-MM-DD")
+    const listed_date = formatDate(product.listingDate);
+
+    // Handle seller and verifiedBy similarly as in `getAllProducts`
+    const seller = product.seller || "Unknown";  // Ensure a fallback for seller
+    const verifiedBy = product.verifiedBy || "Unknown";  // Ensure a fallback for verifiedBy
+
     return {
-      id: data.id,
-      name: data.name,
-      description: data.description,
-      listed_date: data.listed_date,
-      category: data.category,
-      price: data.price,
-      images: data.images,
-      seller: data.seller,
-      verifiedBy: data.verifiedBy,
+      id: product.id,
+      name: product.title?.trim() || "", // Fallback if title is missing
+      description: product.description || "",
+      listed_date,
+      category: product.subCategory || "", // Assuming backend sends `subCategory`
+      price: parsePrice(product.price),
+      images: images,  // Ensure images are an array, even if empty
+      seller: product.seller,         // Handle seller field with fallback
+      verifiedBy: product.verifiedBy,   // Handle verifiedBy field with fallback
     };
   } catch (error) {
     console.error("Error fetching product:", error);
-    throw error;
+    return null;
   }
 }
 

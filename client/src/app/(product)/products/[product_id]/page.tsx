@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getProductById } from "@/lib/productService";
+import { getProductById, Product } from "@/lib/productService"; // ✅ Import Product type
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const productId = params.product_id as string;
-  
-  const [product, setProduct] = useState<any>(null);
+  const productId = params?.product_id as string; // Ensure params exist
+
+  const [product, setProduct] = useState<Product | null>(null); // ✅ typed properly
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -18,7 +18,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     async function fetchProduct() {
       if (!productId) return;
-      
+
       try {
         setLoading(true);
         const productData = await getProductById(productId);
@@ -29,7 +29,7 @@ export default function ProductDetailPage() {
         setLoading(false);
       }
     }
-    
+
     fetchProduct();
   }, [productId]);
 
@@ -58,124 +58,112 @@ export default function ProductDetailPage() {
     );
   }
 
-  // Handle Neo4j integer or regular number for price
-  let priceValue = 0;
-  if (typeof product.price === "object" && typeof product.price.toNumber === "function") {
-    priceValue = product.price.toNumber();
-  } else if (typeof product.price === "number") {
-    priceValue = product.price;
-  }
+  const priceValue = product.price; // ✅ Already parsed as number in service
+
+  const images = product.images.length > 0 ? product.images : ["/placeholder.jpg"];
 
   return (
-    <div className="container mx-auto p-4 mt-20">
-      {/* Back button */}
-      <Link 
-        href="/products"
-        className="mb-4 flex items-center text-gray-600 hover:text-gray-900"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back to Products
-      </Link>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-24">
+  <div className="mb-6">
+    <Link href="/products" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to Products
+    </Link>
+  </div>
 
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="md:flex">
-          {/* Left side - Image gallery */}
-          <div className="md:w-1/2">
-            <div className="relative">
+  <div className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row gap-8 p-6">
+    {/* Left - Images */}
+    <div className="md:w-1/2 flex flex-col gap-4">
+      <div className="relative rounded-lg overflow-hidden shadow-md">
+        <Image
+          src={images[activeImageIndex]}
+          alt={product.name}
+          width={800}
+          height={600}
+          className="w-full h-[400px] object-cover transition-all duration-300 hover:scale-105"
+        />
+        <button
+          className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-md hover:bg-white"
+          onClick={() => setIsFavorite(!isFavorite)}
+        >
+          {isFavorite ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF3366" stroke="#FF3366" strokeWidth="2">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3c3.08 0 5.5 2.42 5.5 5.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3c3.08 0 5.5 2.42 5.5 5.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Thumbnails */}
+      {images.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto">
+          {images.map((image, index) => (
+            <div 
+              key={index}
+              onClick={() => setActiveImageIndex(index)}
+              className={`w-20 h-16 rounded-md overflow-hidden cursor-pointer border-2 ${
+                activeImageIndex === index ? "border-blue-500" : "border-gray-300"
+              }`}
+            >
               <Image
-                src={product.images[activeImageIndex]}
-                alt={product.name}
-                width={600}
-                height={400}
-                className="w-full h-80 object-cover"
+                src={image}
+                alt={`Thumbnail ${index + 1}`}
+                width={80}
+                height={60}
+                className="w-full h-full object-cover"
               />
-              <button
-                className="absolute top-4 right-4 bg-white rounded-full p-2 shadow-md"
-                onClick={() => setIsFavorite(!isFavorite)}
-              >
-                {isFavorite ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FF3366" stroke="#FF3366" strokeWidth="2" className="w-6 h-6">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                  </svg>
-                )}
-              </button>
             </div>
-            
-            {/* Thumbnail gallery */}
-            {product.images.length > 1 && (
-              <div className="flex overflow-x-auto p-2 gap-2">
-                {product.images.map((image: string, index: number) => (
-                  <div 
-                    key={index}
-                    className={`flex-shrink-0 cursor-pointer border-2 rounded-md overflow-hidden ${
-                      activeImageIndex === index ? 'border-blue-500' : 'border-transparent'
-                    }`}
-                    onClick={() => setActiveImageIndex(index)}
-                  >
-                    <Image
-                      src={image}
-                      alt={`${product.name} thumbnail ${index + 1}`}
-                      width={80}
-                      height={60}
-                      className="w-16 h-12 object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Right side - Product details */}
-          <div className="md:w-1/2 p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="text-sm font-medium text-gray-500 uppercase">{product.category}</span>
-                <h1 className="text-2xl font-bold mt-1">{product.name}</h1>
-                <p className="text-sm text-gray-500 mt-1">Listed on: {String(product.listed_date)}</p>
-              </div>
-              <div className="text-3xl font-bold text-blue-700">${priceValue.toLocaleString()}</div>
-            </div>
-            
-            <div className="mt-6">
-              <h2 className="text-lg font-semibold">Description</h2>
-              <p className="mt-2 text-gray-700">{product.description}</p>
-            </div>
-            
-            <div className="mt-8">
-              <div className="flex gap-4">
-                <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium flex-1 hover:bg-blue-700 transition-colors">
-                  Buy Now
-                </button>
-                <button className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors">
-                  Verify Product
-                </button>
-              </div>
-            </div>
-            
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <h3 className="text-lg font-semibold mb-4">Seller Information</h3>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium">Seller: Aniket Chaurasia</p>
-                  <p className="text-sm text-gray-600 mt-1">Verified By: Pratiksha Dixit</p>
-                </div>
-                <button className="bg-blue-100 text-blue-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-1">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-                  </svg>
-                  Contact Seller
-                </button>
-              </div>
-            </div>
-          </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* Right - Details */}
+    <div className="md:w-1/2 flex flex-col justify-between gap-6">
+      <div>
+        <span className="text-sm uppercase text-gray-400">{product.category}</span>
+        <h1 className="text-3xl font-bold mt-1 text-gray-800">{product.name}</h1>
+        <p className="text-xs text-gray-500 mt-1">
+          Listed on: {new Date(product.listed_date).toLocaleDateString()}
+        </p>
+
+        <div className="text-4xl font-extrabold text-blue-700 mt-4">
+          ${priceValue.toLocaleString()}
+        </div>
+
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold text-gray-700">Description</h2>
+          <p className="mt-2 text-gray-600">{product.description}</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-4">
+          <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+            Buy Now
+          </button>
+          <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition">
+            Verify Product
+          </button>
+        </div>
+
+        <div className="text-xs text-gray-500 text-center mt-2">
+          {product.verifiedBy ? (
+            <span className="text-blue-600">Verified By – {product.verifiedBy}</span>
+          ) : (
+            <span>Seller – {product.seller || "Unknown"}</span>
+          )}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
   );
 }

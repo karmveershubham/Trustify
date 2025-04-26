@@ -15,6 +15,7 @@ interface Product {
   category: string;
   price: number;
   images: Array<string>;
+  verifiedBy?: string | null; // ✅ Optional field
 }
 
 export default function ProductPage() {
@@ -30,33 +31,29 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/products`, {
           method: "GET",
-          credentials: "include", // ✅ needed to send cookies
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
         });
-  
+    
         console.log("Response status:", response.status);
-  
-        // Check if response status is not OK
+    
         if (!response.ok) {
           console.error(`Failed to fetch products. Status code: ${response.status}`);
           throw new Error("Failed to fetch products");
         }
-  
+    
         const data: { products: Product[] } = await response.json();
         console.log("Fetched data:", data);
-  
-        // Ensure 'products' is an array
+    
         if (Array.isArray(data.products)) {
-          const productList = data.products.map((item) => item.products).flat(); // Flattening the nested products
+          const productList = data.products; // ✅ FIXED HERE
           setProducts(productList);
           setFilteredProducts(productList);
-  
-          // Extract unique categories
+    
           const uniqueCategories: string[] = ["All", ...Array.from(new Set(productList.map((p) => p.category)))];
           setCategories(uniqueCategories);
         } else {
@@ -69,6 +66,7 @@ export default function ProductPage() {
         setLoading(false);
       }
     };
+    
   
     fetchProducts();
   }, []);
