@@ -59,7 +59,8 @@ const Footer = () => {
 
         {/* Bottom footer with copyright */}
         <div className="pt-8 border-t border-gray-300 flex flex-col items-center justify-center">
-          <p className="text-sm text-gray-600 mb-4">© 2025 Trustify. All rights reserved.</p>
+          <p className="text-sm text-gray-600 mb-4">© {new Date().getFullYear()} Trustify. All rights reserved.</p>
+          <p className="text-sm text-gray-600 mb-4"><Link href='/developers'>Made with ❤️ by Trustify Team</Link></p>
           <div className="flex space-x-6">
             <Link href="#" className="text-sm text-gray-500 hover:text-blue-500 transition-colors duration-300">Privacy Policy</Link>
             <Link href="#" className="text-sm text-gray-500 hover:text-blue-500 transition-colors duration-300">Terms of Service</Link>

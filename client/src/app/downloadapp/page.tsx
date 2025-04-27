@@ -5,24 +5,19 @@ import Image from 'next/image';
 import Slider from "react-slick";
 declare module '*.css';
 
-// You'll need to install these packages:
-// npm install react-slick slick-carousel
-
 export default function DownloadApp() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true); // Fixed assignment - was using = instead of calling the function    
-    // Import slider CSS
+    setMounted(true); 
     import('slick-carousel/slick/slick.css');
     import('slick-carousel/slick/slick-theme.css');
   }, []);
 
-  // Slider settings
   const settings = {
     dots: true,
     infinite: true,
-    speed: 500,
+    speed: 400,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
@@ -90,7 +85,7 @@ export default function DownloadApp() {
                         <div key={i} className="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 border-2 border-white" />
                       ))}
                     </div>
-                    <span className="text-xs text-gray-600">Trusted by 10,000+ users</span>
+                    <span className="text-xs text-gray-600">Trusted by 1,000+ users</span>
                   </div>
                 </div>
               </div>
@@ -102,7 +97,7 @@ export default function DownloadApp() {
                       <Slider {...settings} className="trustify-app-slider">
                         {appScreenshots.map((screenshot, index) => (
                           <div key={index} className="outline-none">
-                            <div className="aspect-[9/16] relative">
+                            <div className="aspect-[7/16] relative">
                               <Image
                                 src={screenshot}
                                 alt={`App Screenshot ${index + 1}`}
@@ -162,15 +157,12 @@ export default function DownloadApp() {
               </div>
               <div className="mt-6 lg:mt-0 flex justify-center">
                 <div className="bg-white p-3 rounded-xl">
-                  {/* Replace with an actual QR code image */}
                   <Image
                     src="/images/qr-code.png" 
                     alt="QR Code to download Trustify"
                     width={128}
                     height={128}
                     className="w-32 h-32"
-                    // If you don't have a QR code image yet, you'll need to comment out this Image component
-                    // and uncomment the placeholder div below
                   />
                   
                   {/* QR Code placeholder - uncomment if you don't have a QR code image yet

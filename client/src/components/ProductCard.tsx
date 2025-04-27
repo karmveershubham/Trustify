@@ -149,12 +149,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             Contact Seller
           </button>
           {!product.verifiedBy && (
-            <button 
-              className="bg-gray-100 text-gray-800 text-xs px-3 py-1.5 rounded-lg font-medium flex-1 hover:bg-gray-200 transition-colors"
-              onClick={handleVerifyClick}
-            >
+            <span className="bg-gray-100 text-center text-gray-800 text-xs px-3 py-1.5 rounded-lg font-medium flex-1 hover:bg-gray-200 transition-colors">
               Verify
-            </button>
+            </span>
           )}
         </div>
 

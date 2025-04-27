@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { StarIcon, ShieldCheckIcon, CheckCircleIcon, ChatBubbleLeftRightIcon} from '@heroicons/react/24/solid';
+import Link from 'next/link';
 
 const AboutSection: React.FC = () => {
   return (
@@ -72,7 +73,7 @@ const AboutSection: React.FC = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button className="about-button">Learn More About Our Story</Button>
+          <Link href='/developers'><Button className="about-button">Learn More About Our Story</Button></Link>
         </div>
       </div>
     </section>
