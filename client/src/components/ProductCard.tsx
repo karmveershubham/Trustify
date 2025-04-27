@@ -15,7 +15,8 @@ interface ProductCardProps {
     price: any; // Neo4j integer or regular number
     images: string[];
     seller: string; // Seller information
-    verifiedBy: string; // Verification info
+    verifiedBy?: string | null;  // Verification info
+    details?: string | null; // Additional details
   };
 }
 
@@ -137,7 +138,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <h4 className="text-xs text-gray-500">{listedDate}</h4>
         </div>
 
-        <div className="text-lg font-bold text-blue-600 mb-1.5">${priceValue.toLocaleString()}</div>
+        <div className="text-lg font-bold text-blue-600 mb-1.5">₹{priceValue.toLocaleString()}</div>
         <p className="text-gray-600 text-xs mb-3 line-clamp-2">{product.description}</p>
 
         <div className="flex gap-2">
@@ -161,8 +162,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="flex items-center gap-1">
             {product.verifiedBy ? (
               <div className="flex items-center gap-1 text-blue-600 text-xs">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 0l2.39 6.91H19l-5.28 3.83L14.77 17 10 13.8 5.23 17l.55-6.26L1 6.91h6.61z" />
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 1l9 4v6c0 5.25-3.8 10.74-9 12-5.2-1.26-9-6.75-9-12V5l9-4z" />    
+                  <path fill="#fff" d="M10 16l-3-3 1.4-1.4L10 13.2l5.6-5.6 1.4 1.4-7 7z" />                
                 </svg>
                 <span>Verified by {product.verifiedBy}</span>
               </div>

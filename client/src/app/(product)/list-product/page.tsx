@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter} from "next/navigation";
 import { toast } from "sonner";
+
 
 // Main categories
 enum CategoryGroup {
@@ -226,8 +227,6 @@ const formCategories: Record<
 
 const ListingPage: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const userId = searchParams.get("userId");
   const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<CategoryGroup | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategory | null>(null);
   const [image, setImage] = useState<File | null>(null);
@@ -332,6 +331,8 @@ const ListingPage: React.FC = () => {
     }
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -344,6 +345,7 @@ const ListingPage: React.FC = () => {
       toast.error("Please upload an image");
       return;
     }
+    setIsSubmitting(true);
 
     // Compose the details object for backend
     const details: Record<string, any> = {};
@@ -355,7 +357,7 @@ const ListingPage: React.FC = () => {
 
     // Compose FormData for backend
     const data = new FormData();
-    data.append("userId", userId || "");
+    data.append("userId","");
     data.append("label", selectedCategoryGroup);
     data.append("subCategory", selectedSubCategory);
     data.append("title", formValues["title"] || "");
@@ -379,12 +381,14 @@ const ListingPage: React.FC = () => {
       const result = await response.json();
       if (response.ok) {
         toast.success("Product added successfully!");
-        router.push(`/profile?userId=${userId}`);
+        router.push(`/profile`);
       } else {
         toast.error(result.message || "Error adding product");
       }
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -504,7 +508,7 @@ const ListingPage: React.FC = () => {
                   </div>
                 ) : (
                   <div className="p-16 text-center">
-                    <div className="text-6xl mb-4">👈</div>
+                    <div className="text-6xl mb-4"></div>
                     <h3 className="text-xl font-semibold text-gray-700">Select a category and subcategory</h3>
                     <p className="text-gray-500 mt-2">Choose a category and subcategory to see relevant form fields</p>
                   </div>
@@ -521,10 +525,10 @@ const ListingPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-blue-600 border border-transparent rounded-md shadow-sm font-medium text-white hover:bg-blue-700"
-                    disabled={!selectedCategoryGroup || !selectedSubCategory}
+                    className="px-6 py-3 bg-blue-600 border border-transparent rounded-md shadow-sm font-medium text-white hover:bg-blue-700 disabled:bg-gray-400"
+                    disabled={!selectedCategoryGroup || !selectedSubCategory || isSubmitting}
                   >
-                    List Product
+                    {isSubmitting ? 'Listing Product...' : 'List Product'}
                   </button>
                 </div>
               </form>

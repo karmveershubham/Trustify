@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import loginImage from "@/../public/images/login.png";
-import { useDispatch } from "react-redux";
 import {login} from "@/services/slices/authSlices";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
@@ -47,14 +46,11 @@ export default function Signin() {
       
       // Dispatch login action and get the returned user data
       const user = await dispatch(login(formData)).unwrap();
-      
       console.log("Login successful, User Data:", user); // Debugging log
   
       if (user?.id) {
         toast.success("Login successful!");
-        
-        // Redirect to home page
-        router.push('/');
+        router.push('/products');
       } else {
         toast.error("User ID not found in response.");
       }

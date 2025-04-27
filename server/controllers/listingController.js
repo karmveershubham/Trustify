@@ -1,7 +1,6 @@
 import { getDriver } from '../neo4j/neo4j.js';
 import pQuery from '../models/productQuery.js';
 import { generalAttributes, categoryAttributes } from '../models/productAttribute.js';
-import cloudinary from '../config/cloudinary.js';
 import { createAndDispatchNotifications } from './notificationController.js';
 
 export function validateProductData(req, category) {
@@ -34,6 +33,7 @@ export const addProduct = async (req, res) => {
   try {
         
       console.log("reqbodyy", req.body);
+      console.log("userId", req.user?.id);
       const { subCategory } = req.body;
 
       // Check for valid category
@@ -62,6 +62,7 @@ export const addProduct = async (req, res) => {
       req.body.image=images;
       // console.log("reqqq bodyyyy", req.body);
       const queryParams = req.body;
+      queryParams.userId = req.user?.id; // Assuming userId is available after authentication
     
       session = getDriver().session();
       const query = pQuery;
@@ -84,9 +85,9 @@ export const addProduct = async (req, res) => {
 
       const product = productNode.properties;
       console.log('Product:', product); 
-
+      const userID=req.user?.id; // Assuming userId is available after authentication
       await createAndDispatchNotifications({
-        senderId: req.body.userId,
+        senderId: userID,
         productId: product.id,
         io: req.app.get('io'),
       });
@@ -117,10 +118,10 @@ export const getProduct = async (req, res) => {
 
     const query = `
       MATCH (u:User {id: $userId})
-      MATCH (u)-[:HAS_CONTACT]->(contact:User)
-      
-      OPTIONAL MATCH (contact)-[:LISTED]->(p1:Product)
-      OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(p2:Product)
+      MATCH (u)-[:HAS_CONTACT]->(contact:User)-[:HAS_CONTACT]->(u)
+
+      OPTIONAL MATCH (contact)-[r1:LISTED]->(p1:Product)  WHERE r1.isSold = false
+      OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(p2:Product)<-[r2:LISTED]-() WHERE r2.isSold = false
 
       WITH 
         COLLECT(DISTINCT { product: p1, seller: contact.name, verifiedBy: NULL }) + 
@@ -174,30 +175,50 @@ export const getProduct = async (req, res) => {
 };
 
 export const getProductById = async (req, res) => {
-  const { id } = req.params;  // Product ID from frontend
-  console.log("Product ID from frontend:", id);
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized: No user ID found' });
+  }
 
   let session;
   try {
     session = getDriver().session();
 
     const query = `
-      MATCH (p:Product {id: $id})
+      MATCH (requestingUser:User {id: $userId})
+      MATCH (p:Product {id: $productId})
+
+      OPTIONAL MATCH (requestingUser)-[:LISTED]->(p)
+
+      MATCH (requestingUser)-[:HAS_CONTACT]->(mutual:User)-[:HAS_CONTACT]->(requestingUser)
+
+      OPTIONAL MATCH (mutual)-[:HAS_VERIFIED]->(p)
+      
       OPTIONAL MATCH (seller:User)-[:LISTED]->(p)
+
+      WITH p, mutual, seller, requestingUser
+      WHERE mutual IS NOT NULL OR requestingUser = seller 
+
       OPTIONAL MATCH (verifier:User)-[:HAS_VERIFIED]->(p)
-      RETURN p AS product, seller.name AS seller, verifier.name AS verifiedBy
+      WHERE verifier = mutual OR verifier = requestingUser OR requestingUser = seller 
+
+      RETURN p AS product, 
+             seller.name AS sellerName, 
+             verifier.name AS verifierName
     `;
 
-    const result = await session.run(query, { id });
+    const result = await session.run(query, { productId: id, userId });
 
     if (result.records.length === 0) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(403).json({ error: 'Forbidden: You are not authorized to view this product' });
     }
 
     const record = result.records[0];
     const productNode = record.get('product');
-    const verifiedBy = record.get('verifiedBy');
-    const seller = record.get('seller');
+    const sellerName = record.get('sellerName');
+    const verifierName = record.get('verifierName');
 
     if (!productNode) {
       return res.status(404).json({ error: 'Product not found' });
@@ -205,7 +226,6 @@ export const getProductById = async (req, res) => {
 
     const product = productNode.properties;
 
-    // Handle listing date safely
     const year = product.listingDate?.year?.low || 0;
     const month = product.listingDate?.month?.low || 0;
     const day = product.listingDate?.day?.low || 0;
@@ -223,8 +243,9 @@ export const getProductById = async (req, res) => {
         category: product.subCategory || 'No category',
         price: parseInt(product.price) || 0,
         images: images,
-        verifiedBy: verifiedBy || null,
-        seller: seller || "Unknown"
+        details: product.details || {},
+        seller: sellerName || "Unknown",
+        verifiedBy: verifierName || "Unknown"
       }
     });
 
@@ -235,5 +256,54 @@ export const getProductById = async (req, res) => {
     if (session) {
       await session.close();
     }
+  }
+};
+
+
+export const verifyProduct = async (req, res) => {
+  const session = getDriver().session();
+  const userId = req.user.id;
+  const productId = req.params.productId;
+
+  console.log("Attempting to verify product...");
+  console.log("User ID:", userId);
+  console.log("Product ID:", productId);
+
+  try {
+    const result = await session.run(
+      `MATCH (u:User {id: $userId})
+       MATCH (p:Product {id: $productId})<-[:LISTED]-(seller:User)
+       MATCH (u)-[:HAS_CONTACT]->(seller)
+       OPTIONAL MATCH (u)-[v:HAS_VERIFIED]->(p)
+       WITH u, p, v
+       CALL apoc.do.when(
+         v IS NULL,
+         'MERGE (u)-[:HAS_VERIFIED]->(p) RETURN true AS created',
+         'RETURN false AS created',
+         {u: u, p: p}
+       ) YIELD value
+       RETURN value.created AS created, p.id AS productId`,
+      { userId, productId }
+    );
+
+    if (result.records.length === 0) {
+      console.log("Verification failed — user is not a contact of the seller.");
+      return res.status(403).json({ error: 'You are not authorized to verify this product.' });
+    }
+
+    const created = result.records[0].get('created');
+
+    if (created) {
+      console.log("Product verified successfully!");
+    } else {
+      console.log("Product was already verified. No new relation created.");
+    }
+
+    res.json({ success: true, productId, newlyVerified: created });
+  } catch (error) {
+    console.error('Error verifying product:', error);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    await session.close();
   }
 };
