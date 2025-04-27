@@ -70,7 +70,7 @@ export default function Header() {
             <Link href="#faq" className="text-sm font-medium hover:underline hover:text-blue-500 transition-colors duration-300">
               FAQs
             </Link>
-            <Link href="#downloadapp" className="text-sm font-medium hover:underline hover:text-blue-500 transition-colors duration-300">
+            <Link href="/downloadapp" className="text-sm font-medium hover:underline hover:text-blue-500 transition-colors duration-300">
               Download App
             </Link>
           </nav>
@@ -122,7 +122,7 @@ export default function Header() {
               </Button>
             </Link>
 
-            <Link href="/downloads" >
+            <Link href="/downloadapp" >
               <Button className="bg-green-500 hover:bg-green-600 text-white transition-transform duration-300 hover:scale-105">
                 Get Started
               </Button>

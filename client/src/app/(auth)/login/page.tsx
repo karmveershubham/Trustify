@@ -125,7 +125,7 @@ export default function Signin() {
 
             {/* Signup Link */}
             <div className="flex justify-center">
-              <Link href="/downloads">
+              <Link href="/downloadapp">
                 <span className="text-xs uppercase text-gray-500">New User? Download App</span>
               </Link>
             </div>

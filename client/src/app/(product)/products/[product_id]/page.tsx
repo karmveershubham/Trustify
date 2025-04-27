@@ -5,6 +5,32 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getProductById, Product } from "@/lib/productService";
+import { toast } from "sonner";
+
+const handleVerifyProduct=  async (productId: string)=>{
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/products/${productId}/verify`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Verification failed');
+    }
+
+    const data = await response.json();
+    if(data.newlyVerified){
+      console.log('Product verified successfully:', data);
+      toast.success('Product verified successfully!');
+    }else{
+       toast.message('Product already verified!');
+    }
+    
+  } catch (error) {
+    console.error('Error verifying product:', error);
+    toast.error('Error verifying product. Please try again.');
+  }
+};
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -186,11 +212,14 @@ export default function ProductDetailPage() {
             
             <div className="mb-6">
               <div className="grid grid-cols-2 gap-4">
-                {!isProductVerified && (
-                  <button className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full">
+                {!isProductVerified ? (
+                  <button onClick={() => handleVerifyProduct(product?.id)} className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full" >
                     Verify Product
                   </button>
-                )}
+                ):(<button className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full" >
+                    Already Verified
+                  </button>)}
+                  
                 <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-center w-full">
                   Contact Seller
                 </button>
