@@ -1,10 +1,10 @@
 import express from 'express';
 import { isAuthenticated } from '../middlewares/authMiddleware.js';
-import { getUserNotifications, clearAllNotifications } from '../controllers/notificationController.js';
+import { getUserNotifications, markNotificationAsRead } from '../controllers/notificationController.js';
 
 const router = express.Router();
 
 router.get('/notifications', isAuthenticated, getUserNotifications);
-router.delete('/notifications', isAuthenticated, clearAllNotifications);
+router.patch('/notifications/:notificationId/mark-read', isAuthenticated, markNotificationAsRead);
 
 export default router;

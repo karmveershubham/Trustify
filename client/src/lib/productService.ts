@@ -8,7 +8,8 @@ export interface Product {
   price: number; // Changed to number for easier handling
   images: string[];
   seller: string;
-  verifiedBy: string;
+  verifiedBy?: string | null; // Assuming verifiedBy can be null
+  details?: string | null; 
 }
 
 // Helper function to parse Neo4j integer safely
@@ -35,12 +36,8 @@ const formatDate = (listingDate: any): string => {
 // Corrected function to get a product by ID
 export async function getProductById(id: string): Promise<Product | null> {
   try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/products/${id}`, {
       method: "GET",
-      headers: token ? {
-        "Authorization": `Bearer ${token}`,
-      } : {},
       credentials: "include",
     });
     
@@ -76,14 +73,15 @@ export async function getProductById(id: string): Promise<Product | null> {
 
     return {
       id: product.id,
-      name: product.title?.trim() || "", // Fallback if title is missing
+      name: product.name?.trim() || "", // Fallback if title is missing
       description: product.description || "",
       listed_date,
-      category: product.subCategory || "", // Assuming backend sends `subCategory`
+      category: product.category || "", // Assuming backend sends `subCategory`
       price: parsePrice(product.price),
       images: images,  // Ensure images are an array, even if empty
       seller: product.seller,         // Handle seller field with fallback
       verifiedBy: product.verifiedBy,   // Handle verifiedBy field with fallback
+      details: product.details || "", // Ensure details are present
     };
   } catch (error) {
     console.error("Error fetching product:", error);

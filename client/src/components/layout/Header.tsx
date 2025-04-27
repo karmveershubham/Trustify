@@ -16,8 +16,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Contact, Heart, LogOut, ShoppingBag, ShoppingCart, User } from 'lucide-react';
+import { Bell, Contact, Heart, LogOut, ShoppingBag, ShoppingCart, User } from 'lucide-react';
 import NotificationButton from './NotificationButton';
+import { RainbowButton } from '../magicui/rainbow-button';
 
 export default function Header() {
   const user = useAppSelector((state: RootState) => state.auth.user);
@@ -79,6 +80,7 @@ export default function Header() {
         <div className="flex items-center gap-4">
           {user ? (
             <>
+              <Link href='/list-product'><RainbowButton >Sell Products</RainbowButton></Link>
               <Link href="/wishlist">
                 <Heart className="h-7 w-7 text-gray-600 cursor-pointer mb-2 hover:scale-105 transition-transform" />
               </Link>
@@ -113,9 +115,19 @@ export default function Header() {
               </DropdownMenu>
             </>
           ) : (
-            <Link href="/login" className="text-sm font-medium hover:underline hover:text-blue-500 transition-colors duration-300">
-              Log In
+            <>
+            <Link href="/login" >
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white transition-transform duration-300 hover:scale-105">
+                Log In
+              </Button>
             </Link>
+
+            <Link href="/downloads" >
+              <Button className="bg-green-500 hover:bg-green-600 text-white transition-transform duration-300 hover:scale-105">
+                Get Started
+              </Button>
+            </Link>
+            </>
           )}
         </div>
       </header>

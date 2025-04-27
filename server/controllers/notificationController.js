@@ -1,5 +1,13 @@
 import * as driver from "../neo4j/neo4j.js";
 
+function formatTimestampReadable(neo4jTimestamp) {
+  const { year, month, day, hour, minute } = neo4jTimestamp;
+  const hrs = hour.low % 12 || 12;
+  const ampm = hour.low >= 12 ? 'PM' : 'AM';
+  return `${day.low.toString().padStart(2, '0')}-${month.low.toString().padStart(2, '0')}-${year.low} ${hrs}:${minute.low.toString().padStart(2, '0')} ${ampm}`;
+}
+
+
 export const getUserNotifications = async (req, res) => {
   const session = driver.getDriver().session();
   try {
@@ -9,7 +17,15 @@ export const getUserNotifications = async (req, res) => {
       { userId: req.user.id }
     );
 
-    const notifications = result.records.map(record => record.get('n').properties);
+    const notifications = result.records.map(record => {
+      const notification = record.get('n').properties;
+
+      if (notification.timestamp) {
+        notification.timestamp = formatTimestampReadable(notification.timestamp);
+      }
+      return notification;
+    });
+
     res.json(notifications);
   } catch (error) {
     console.error('Error fetching notifications:', error);
@@ -19,16 +35,38 @@ export const getUserNotifications = async (req, res) => {
   }
 };
 
-export const clearAllNotifications = async (req, res) => {
-  const session = driver.getDriver().session();
+
+
+export const markNotificationAsRead = async (req, res) => {
+  const session = getDriver().session();
+  const userId = req.user.id;
+  const notificationId = req.params.notificationId;
+
+  console.log("Marking notification as read...");
+  console.log("User ID:", userId);
+  console.log("Notification ID:", notificationId);
+
   try {
-    await session.run(
-      `MATCH (u:User {id: $userId})<-[:SENT_TO]-(n:Notification) DETACH DELETE n`,   //or is read false;
-      { userId: req.user.id }
+    const result = await session.run(
+      `
+      MATCH (n:Notification {id: $notificationId})-[r:SENT_TO]->(u:User {id: $userId})
+      SET r.isRead = true
+      RETURN n.id AS notificationId, r.isRead AS isRead
+      `,
+      { userId, notificationId }
     );
-    res.json({ success: true });
+
+    if (result.records.length === 0) {
+      console.log("No matching notification relation found.");
+      return res.status(404).json({ error: 'Notification not found or already marked.' });
+    }
+
+    const isRead = result.records[0].get('isRead');
+
+    console.log("Notification marked as read successfully!");
+    res.json({ success: true, notificationId, isRead });
   } catch (error) {
-    console.error('Error clearing notifications:', error);
+    console.error('Error marking notification as read:', error);
     res.status(500).json({ error: 'Server error' });
   } finally {
     await session.close();
@@ -36,49 +74,62 @@ export const clearAllNotifications = async (req, res) => {
 };
 
 export const createAndDispatchNotifications = async ({ senderId, productId, io }) => {
-  // const session = driver.getDriver().session();
-  const message = 'A new product has been listed!';
-  const timestamp = new Date().toISOString();
+  const session = driver.getDriver().session();
 
-  try {   //make one notification node and send it to all the users who are in the contact list of the sender
-    // for (const contactId of contacts) {
-    //   const notificationId = `${senderId}-${productId}-${contactId}-${Date.now()}`;
-    //   await session.run(
-    //     `MATCH (u:User {id: $contactId})
-    //      CREATE (n:Notification {
-    //        id: $notificationId,
-    //        message: $message,
-    //        isRead: false,
-    //        productId: $productId,
-    //        senderId: $senderId,
-    //        timestamp: $timestamp
-    //      })-[:SENT_TO]->(u)`,
-    //     { contactId, notificationId, message, productId, senderId, timestamp }
-    //   );
-      const contactId="f377a5e5-f6d5-4b33-8f42-e5bf54b056ae"
-      const dummyNotification = {
-        id: 'notif123',
-        message: '📦 A new product has been listed by your contact!',
-        productId: productId,
-        senderId: senderId,
-        timestamp: new Date().toISOString(),
-        isRead: false
-      };
-
-      io.to(contactId).emit("receiveNotification", dummyNotification
-      // {
-      //   id: notificationId,
-      //   message,
-      //   productId,
-      //   senderId,
-      //   timestamp,
-      //   isRead: false
-    //   });
-    // }
+  try {
+    const result = await session.run(
+      `MATCH (sender:User {id: $senderId})
+      MATCH (sender)-[:HAS_CONTACT]->(u:User)-[:HAS_CONTACT]->(sender)
+      WITH sender, collect(u) AS mutuals,
+           apoc.create.uuid() AS notifId,
+           datetime() AS ts,
+           'Your contact ' + sender.name + ' has listed a new product 📦.' AS msg
+      CREATE (n:Notification {
+        id: notifId,
+        message: msg,
+        productId: $productId,
+        senderId: sender.id,
+        timestamp: ts
+      })
+      WITH n, mutuals
+      UNWIND mutuals AS user
+      MERGE (n)-[r:SENT_TO]->(user)
+      SET r.isRead = false
+      RETURN n, user.id AS contactId, r.isRead AS isRead`,
+      { senderId, productId }
     );
+
+    const notificationNode = result.records[0]?.get('n')?.properties;
+
+    if (!notificationNode) {
+      return { success: false, error: "No mutual contacts found." };
+    }
+
+    // Send notification to all mutual contacts
+    for (const record of result.records) {
+      const contactId = record.get('contactId');
+      const isRead = record.get('isRead');
+      io.to(contactId).emit("receiveNotification", {
+        id: notificationNode.id,
+        message: notificationNode.message,
+        productId: notificationNode.productId,
+        senderId: notificationNode.senderId,
+        timestamp: formatTimestampReadable(notificationNode.timestamp),
+        isRead, 
+      });
+    }
+
+
+
+    return {
+      success: true,
+      notification: notificationNode,
+      recipients: result.records.map(r => r.get('contactId')),
+    };
   } catch (err) {
     console.error('Error dispatching notifications:', err);
+    return { success: false, error: err.message };
   } finally {
-    // await session.close();
+    await session.close();
   }
 };

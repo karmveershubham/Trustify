@@ -28,7 +28,9 @@ const NotificationButton = ({ userId }: { userId: string }) => {
 
     const handleNotification = (notification: Notification) => {
       setNotifications((prev) => [notification, ...prev]);
+      console.log("New notification received At:", notification.timestamp);
       toast.message(notification.message);
+    
     };
 
     socket.emit("joinRoom", { userId });
@@ -82,7 +84,7 @@ const NotificationButton = ({ userId }: { userId: string }) => {
                 )}
               </div>
               <span className="text-xs text-gray-400">
-                {new Date(notif.timestamp).toLocaleTimeString()}
+                {notif?.timestamp} 
               </span>
             </div>
           ))

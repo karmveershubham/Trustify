@@ -15,7 +15,9 @@ interface Product {
   category: string;
   price: number;
   images: Array<string>;
-  verifiedBy?: string | null; // ✅ Optional field
+  seller: string; 
+  verifiedBy?: string | null; 
+  details?: string | null;
 }
 
 export default function ProductPage() {
@@ -45,8 +47,14 @@ export default function ProductPage() {
           console.error(`Failed to fetch products. Status code: ${response.status}`);
           throw new Error("Failed to fetch products");
         }
-    
         const data: { products: Product[] } = await response.json();
+
+        // Ensure each product has a seller property
+        data.products.forEach((product) => {
+          if (!product.seller) {
+            product.seller = "Unknown"; // Default value for missing seller
+          }
+        });
         console.log("Fetched data:", data);
     
         if (Array.isArray(data.products)) {
@@ -105,7 +113,7 @@ export default function ProductPage() {
 
       <div className="container mx-auto flex flex-row">
         {/* Sidebar */}
-        <div className="w-1/4 p-4">
+        <div className="w-1/5 p-4">
           <motion.div
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -151,19 +159,22 @@ export default function ProductPage() {
         </div>
 
         {/* Product Grid */}
-        <div className="w-3/4 p-6">
+        <div className="w-4/5 p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
           >
             {sortedProducts.length > 0 ? (
               sortedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
               ))
             ) : (
-              <p>No products available</p>
+              <p className="text-center col-span-full">No products available</p>
             )}
           </motion.div>
         </div>
