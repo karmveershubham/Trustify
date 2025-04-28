@@ -82,7 +82,7 @@ export default function DownloadApp() {
                   <div className="inline-flex items-center space-x-2 bg-indigo-50 px-3 py-1.5 rounded-full">
                     <div className="flex -space-x-1">
                       {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 border-2 border-white" />
+                        <div key={i} className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 border-2 border-white" />
                       ))}
                     </div>
                     <span className="text-xs text-gray-600">Trusted by 1,000+ users</span>
@@ -91,7 +91,7 @@ export default function DownloadApp() {
               </div>
               
               <div className="lg:col-span-6">
-                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1 rounded-3xl shadow-lg max-w-xs mx-auto">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-1 rounded-3xl shadow-lg max-w-xs mx-auto">
                   <div className="bg-white rounded-3xl overflow-hidden">
                     {mounted ? (
                       <Slider {...settings} className="trustify-app-slider">
@@ -126,7 +126,7 @@ export default function DownloadApp() {
         </section>
 
         {/* QR Code Section - reduced padding and smaller elements */}
-        <section className="py-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+        <section className="py-8 bg-gradient-to-r from-blue-500 to-blue-400 text-white">
           <div className="max-w-6xl mx-auto px-4">
             <div className="lg:grid lg:grid-cols-2 lg:gap-6 items-center">
               <div>
