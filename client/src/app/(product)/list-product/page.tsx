@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
+import { z } from "zod";
 
 // Main categories
 enum CategoryGroup {
@@ -225,6 +225,76 @@ const formCategories: Record<
   },
 };
 
+// Zod validation helpers
+const currentYear = new Date().getFullYear();
+const numberFieldKeys = ["price", "purchasedYear", "kmDriven", "capacity"];
+
+// Dynamic Zod schema builder
+function buildZodSchema(fields: Array<{
+  label: string; backendKey: string; keyboard?: string; type: string 
+}>) {
+  const shape: Record<string, any> = {};
+
+  for (const field of fields) {
+    // Price validation
+    if (field.backendKey === "price") {
+      shape.price = z.coerce.number({
+        required_error: "Price is required",
+        invalid_type_error: "Price must be a number"
+      }).nonnegative({ message: "Price cannot be negative" });
+      continue;
+    }
+
+    // Purchased Year validation
+    if (field.backendKey === "purchasedYear") {
+      shape.purchasedYear = z.coerce.number({
+        required_error: "Year is required",
+        invalid_type_error: "Year must be a number"
+      })
+      .int({ message: "Year must be an integer" })
+      .min(1900, { message: "Year must be after 1900" })
+      .max(currentYear, { message: `Year cannot be after ${currentYear}` });
+      continue;
+    }
+
+    // Number field validation
+    if (field.keyboard === "number" || numberFieldKeys.includes(field.backendKey)) {
+      shape[field.backendKey] = z.coerce.number({
+        required_error: `${field.label || field.backendKey} is required`,
+        invalid_type_error: `${field.label || field.backendKey} must be a number`
+      });
+      continue;
+    }
+
+    // Text field validation
+    if (field.type === "text" || field.type === "description") {
+      shape[field.backendKey] = z.string({
+        required_error: `${field.label || field.backendKey} is required`
+      }).min(1, { message: `${field.label || field.backendKey} cannot be empty` });
+      continue;
+    }
+
+    // Dropdown validation
+    if (field.type === "dropdown") {
+      shape[field.backendKey] = z.string().min(1, {
+        message: `${field.label || field.backendKey} must be selected`
+      });
+      continue;
+    }
+
+    // Boolean validation
+    if (field.type === "boolean") {
+      shape[field.backendKey] = z.boolean({
+        required_error: `${field.label || field.backendKey} must be selected`,
+        invalid_type_error: "Invalid boolean value"
+      });
+      continue;
+    }
+  }
+
+  return z.object(shape);
+}
+
 const ListingPage: React.FC = () => {
   const router = useRouter();
   const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<CategoryGroup | null>(null);
@@ -232,10 +302,12 @@ const ListingPage: React.FC = () => {
   const [image, setImage] = useState<File | null>(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const [price, setPrice] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset form when subcategory changes
   useEffect(() => {
     setFormValues({});
+    setPrice("");
   }, [selectedSubCategory]);
 
   const handleCategoryGroupSelect = (group: CategoryGroup) => {
@@ -331,20 +403,53 @@ const ListingPage: React.FC = () => {
     }
   };
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Submit handler
+  // Submit handler with Zod validation
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!selectedCategoryGroup || !selectedSubCategory) {
-      toast.message("Please select category and subcategory");
+      toast.error("Please select category and subcategory");
       return;
     }
     if (!image) {
       toast.error("Please upload an image");
       return;
     }
+
+    // Prepare all fields for validation
+    const categoryFields = formCategories[selectedCategoryGroup][selectedSubCategory] || [];
+    // Add price field for validation
+    const allFields = [...categoryFields, { backendKey: "price", label: "Price", type: "text", keyboard: "number" }];
+
+    // Build schema
+    const schema = buildZodSchema(allFields);
+
+    // Compose values for validation
+    let valuesForValidation: Record<string, any> = { ...formValues, price };
+
+    // Convert number fields from string to number before validation
+    for (const field of allFields) {
+      if (field.keyboard === "number" || field.backendKey === "price") {
+        valuesForValidation[field.backendKey] = valuesForValidation[field.backendKey] !== undefined && valuesForValidation[field.backendKey] !== ""
+          ? Number(valuesForValidation[field.backendKey])
+          : undefined;
+      }
+      if (field.type === "boolean") {
+        // Booleans are stored as true/false
+        if (typeof valuesForValidation[field.backendKey] === "string") {
+          valuesForValidation[field.backendKey] = valuesForValidation[field.backendKey] === "true";
+        }
+      }
+    }
+
+    // Validate
+    const result = schema.safeParse(valuesForValidation);
+    if (!result.success) {
+      const errorMsg = result.error.errors[0]?.message || "Please fill all required fields correctly";
+      toast.error(errorMsg);
+      return;
+    }
+
     setIsSubmitting(true);
 
     // Compose the details object for backend
@@ -357,7 +462,7 @@ const ListingPage: React.FC = () => {
 
     // Compose FormData for backend
     const data = new FormData();
-    data.append("userId","");
+    data.append("userId", "");
     data.append("label", selectedCategoryGroup);
     data.append("subCategory", selectedSubCategory);
     data.append("title", formValues["title"] || "");
@@ -365,12 +470,6 @@ const ListingPage: React.FC = () => {
     data.append("price", price);
     data.append("image", image);
     data.append("details", JSON.stringify(details));
-
-    console.log("Details:", details);
-    for (const [key, value] of data.entries()) {
-      console.log(`${key}:`, value);
-    }
-
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/add-product`, {

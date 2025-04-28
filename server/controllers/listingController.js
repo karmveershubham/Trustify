@@ -117,18 +117,21 @@ export const getProduct = async (req, res) => {
     session = getDriver().session();
 
     const query = `
-      MATCH (u:User {id: $userId})
+          MATCH (u:User {id: $userId})
       MATCH (u)-[:HAS_CONTACT]->(contact:User)-[:HAS_CONTACT]->(u)
 
-      OPTIONAL MATCH (contact)-[r1:LISTED]->(p1:Product)  WHERE r1.isSold = false
-      OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(p2:Product)<-[r2:LISTED]-() WHERE r2.isSold = false
 
-      WITH 
-        COLLECT(DISTINCT { product: p1, seller: contact.name, verifiedBy: NULL }) + 
-        COLLECT(DISTINCT { product: p2, seller: p2.sellerName, verifiedBy: contact.name }) AS Products
+      OPTIONAL MATCH (contact)-[r1:LISTED]->(p1:Product)  WHERE r1.isSold = false
+      OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(p2:Product)<-[r2:LISTED]-(sellerName:User) WHERE r2.isSold = false AND sellerName <> u
+
+
+      WITH
+        COLLECT(DISTINCT { product: p2, seller: sellerName.name, verifiedBy: contact.name }) + 
+        COLLECT(DISTINCT { product: p1, seller: contact.name, verifiedBy: NULL }) AS Products
 
       UNWIND Products AS p
       RETURN p.product AS product, p.verifiedBy AS verifiedBy, p.seller AS seller
+
     `;
 
     const result = await session.run(query, { userId });
@@ -142,7 +145,7 @@ export const getProduct = async (req, res) => {
 
       if (productNode) {
         products.push({
-          id: productNode.properties.id,   // ✅ Correct! (use the real id you saved)
+          id: productNode.properties.id,   
           name: productNode.properties.title,
           description: productNode.properties.description,
           listed_date: `${productNode.properties.listingDate.year.low}-${productNode.properties.listingDate.month.low}-${productNode.properties.listingDate.day.low}`,
@@ -150,7 +153,7 @@ export const getProduct = async (req, res) => {
           price: parseInt(productNode.properties.price),
           images: productNode.properties.image || [],
           verifiedBy: verifiedBy || null,
-          seller: seller || "Unknown"
+          seller: seller || null
         });
         
       }
@@ -187,26 +190,30 @@ export const getProductById = async (req, res) => {
     session = getDriver().session();
 
     const query = `
-      MATCH (requestingUser:User {id: $userId})
-      MATCH (p:Product {id: $productId})
+        MATCH (u:User {id: $userId})
+        OPTIONAL MATCH (u)-[:HAS_CONTACT]->(contact:User)-[:HAS_CONTACT]->(u)
+        OPTIONAL MATCH (u)-[:LISTED]->(pSelf:Product)
+          WHERE pSelf.id = $productId 
 
-      OPTIONAL MATCH (requestingUser)-[:LISTED]->(p)
+        OPTIONAL MATCH (u)-[:HAS_VERIFIED]->(pselfVerified:Product)<-[:LISTED]-(contact)
+          WHERE pselfVerified.id = $productId 
 
-      MATCH (requestingUser)-[:HAS_CONTACT]->(mutual:User)-[:HAS_CONTACT]->(requestingUser)
+        OPTIONAL MATCH (contact)-[:LISTED]->(pContact:Product)
+          WHERE pContact.id = $productId 
 
-      OPTIONAL MATCH (mutual)-[:HAS_VERIFIED]->(p)
-      
-      OPTIONAL MATCH (seller:User)-[:LISTED]->(p)
+        OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(pVerified:Product)<-[:LISTED]-(seller:User)
+          WHERE pVerified.id = $productId 
+        WITH 
+          COLLECT(DISTINCT { product: pSelf, seller: u.name, verifiedBy: NULL }) +
+          COLLECT(DISTINCT { product: pselfVerified, seller: contact.name, verifiedBy: u.name }) +
+          COLLECT(DISTINCT { product: pContact, seller: contact.name, verifiedBy: NULL }) +
+          COLLECT(DISTINCT { product: pVerified, seller: seller.name, verifiedBy: contact.name }) AS Products
 
-      WITH p, mutual, seller, requestingUser
-      WHERE mutual IS NOT NULL OR requestingUser = seller 
-
-      OPTIONAL MATCH (verifier:User)-[:HAS_VERIFIED]->(p)
-      WHERE verifier = mutual OR verifier = requestingUser OR requestingUser = seller 
-
-      RETURN p AS product, 
-             seller.name AS sellerName, 
-             verifier.name AS verifierName
+        UNWIND Products AS p
+        WITH p
+        WHERE p.product IS NOT NULL
+        RETURN p.product AS product, p.seller AS seller, p.verifiedBy AS verifiedBy
+        LIMIT 2
     `;
 
     const result = await session.run(query, { productId: id, userId });
@@ -217,8 +224,8 @@ export const getProductById = async (req, res) => {
 
     const record = result.records[0];
     const productNode = record.get('product');
-    const sellerName = record.get('sellerName');
-    const verifierName = record.get('verifierName');
+    const sellerName = record.get('seller');
+    const verifierName = record.get('verifiedBy');
 
     if (!productNode) {
       return res.status(404).json({ error: 'Product not found' });
@@ -238,14 +245,14 @@ export const getProductById = async (req, res) => {
       product: {
         id: product.id,
         name: product.title || 'Unknown',
-        description: product.description || 'No description available',
+        description: product.description || 'No Description Available',
         listed_date,
         category: product.subCategory || 'No category',
         price: parseInt(product.price) || 0,
         images: images,
         details: product.details || {},
-        seller: sellerName || "Unknown",
-        verifiedBy: verifierName || "Unknown"
+        seller: sellerName || null,
+        verifiedBy: verifierName || null
       }
     });
 

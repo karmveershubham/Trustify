@@ -48,15 +48,16 @@ export const login = async (req, res) => {
     res.cookie("token", token, {
       path: '/',
       httpOnly: true,
-      secure: process.env.NODE_ENV === "Production",   
+      secure: true,   
       sameSite: 'None',
       maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.cookie("is_auth", true, {
       path: '/',
-      httpOnly: false,
+      httpOnly: true,
       secure: true,
+      sameSite: 'None',
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -119,8 +120,19 @@ export const userProfile = async (req, res) => {
 // Logout
 export const logout = (req, res) => {
   try {
-    res.clearCookie("token", { path: "/" });
-    res.clearCookie("is_auth", { path: "/" });
+    res.clearCookie("token", { 
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None', 
+    });
+    
+    res.clearCookie("is_auth", { 
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None', 
+    });
 
     res.status(200).json({
       status: "success",
