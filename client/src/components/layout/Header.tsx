@@ -72,6 +72,8 @@ export default function Header() {
             </Link>
             <Link href="/downloadapp" className="text-sm font-medium hover:underline hover:text-blue-500 transition-colors duration-300">
               Download App
+            </Link><Link href="/developers" className="text-sm font-medium hover:underline hover:text-blue-500 transition-colors duration-300">
+              Developers
             </Link>
           </nav>
         )}

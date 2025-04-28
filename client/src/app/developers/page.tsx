@@ -1,61 +1,60 @@
 "use client";
 
 import Image from "next/image";
-import { FaLinkedin, FaGithub, FaTwitter, FaFacebook } from "react-icons/fa";
+import { FaLinkedin, FaGithub, FaTwitter } from "react-icons/fa";
+import { SiGmail } from "react-icons/si";
 
 type SocialLinks = {
   linkedin?: string;
   github?: string;
   twitter?: string;
   facebook?: string;
+  gmail?: string;
 };
 
 type TeamMemberType = {
   name: string;
-  role: string;
   image: string;
   social: SocialLinks;
+
 };
 
 const webTeam: TeamMemberType[] = [
   {
     name: "Shubham Karmveer",
-    role: "Full Stack Developer",
-    image: "https://res.cloudinary.com/dvfz67hyi/image/upload/v1745747036/products/mvdida4re2cmhey6ywxl.png",
+    image: "/images/team/shubham.jpg",
     social: {
       linkedin: "https://www.linkedin.com/in/shubham-karmveer/",
       github: "https://github.com/karmveershubham",
-      twitter: "https://x.com/KarmveerShubham",
+      gmail: "https://x.com/KarmveerShubham",
     },
   },
   {
     name: "Bhawana Kushwaha",
-    role: "Full Stack Developer",
-    image: "https://res.cloudinary.com/dvfz67hyi/image/upload/v1745747036/products/mvdida4re2cmhey6ywxl.png",
+    image: "/images/team/bhawana.png",
     social: {
-      linkedin: "https://www.linkedin.com/in/bhawanakushwaha/",
+      linkedin: "https://www.linkedin.com/in/bhawna-kushwaha-b0a98323b/",
       github: "https://github.com/Bhawnakush",
-      twitter: "https://twitter.com/BhawanaKushwaha",
+      gmail: "mailto:523110008@nitkkr.ac.in",
+
     },
   },
   {
     name: "Pratiksha Dixit",
-    role: "Frontend Developer",
-    image: "https://res.cloudinary.com/dvfz67hyi/image/upload/v1745747036/products/mvdida4re2cmhey6ywxl.png",
+    image: "/images/team/pratiksha.jpg",
     social: {
-      linkedin: "https://www.linkedin.com/in/pratikshadixit/",
+      linkedin: "https://www.linkedin.com/in/dpratiksha/",
       github: "https://github.com/d-pratiksha",
-      twitter: "https://twitter.com/PratikshaDixit",
+      gmail: "mailto:523410008@nitkkr.ac.in",
     },
   },
   {
     name: "Aniket Chaurasia",
-    role: "Backend Developer",
-    image: "https://res.cloudinary.com/dvfz67hyi/image/upload/v1745747036/products/mvdida4re2cmhey6ywxl.png",
+    image: "/images/team/aniket.jpg",
     social: {
       linkedin: "https://www.linkedin.com/in/aniket-chaurasia-6a79a9175/",
       github: "https://github.com/Aniketchaurasia97",
-      twitter: "https://twitter.com/AniketChaurasia",
+      gmail: "mailto:aniketchaurasia97@gmail.com",
     },
   },
 ];
@@ -63,42 +62,38 @@ const webTeam: TeamMemberType[] = [
 const appTeam: TeamMemberType[] = [
   {
     name: "Mithilesh Sahu",
-    role: "Mobile Lead",
-    image: "https://res.cloudinary.com/dvfz67hyi/image/upload/v1745747036/products/mvdida4re2cmhey6ywxl.png",
+    image: "/images/team/mithilesh.jpg",
     social: {
-      linkedin: "https://www.linkedin.com/in/mithileshsahu/",
+      linkedin: "https://www.linkedin.com/in/mithilesh-sahu-428974286/",
       github: "https://github.com/Mithilesh9944",
-      twitter: "https://twitter.com/MithileshSahu",
+      gmail: "mailto:mithileshsahu700@gmail.com",
     },
   },
   {
     name: "Devendra Suthiya",
-    role: "iOS Developer",
-    image: "https://res.cloudinary.com/dvfz67hyi/image/upload/v1745747036/products/mvdida4re2cmhey6ywxl.png",
+    image: "/images/team/devendra.jpg",
     social: {
       linkedin: "https://www.linkedin.com/in/devendrasuthiya/",
       github: "https://github.com/DevendraSuthiya",
-      twitter: "https://twitter.com/DevendraSuthiya",
+      gmail: "mailto:sharmadev7004@gmail.com",
     },
   },
   {
     name: "Kushal Meghwal",
-    role: "Android Developer",
-    image: "https://res.cloudinary.com/dvfz67hyi/image/upload/v1745747036/products/mvdida4re2cmhey6ywxl.png",
+    image: "/images/team/kushal.jpg",
     social: {
       linkedin: "https://www.linkedin.com/in/kushalmeghwal/",
       github: "https://github.com/kushalmeghwal",
-      twitter: "https://twitter.com/KushalMeghwal",
+      gmail: "mailto:kushalmeghwal4@gmail.com",
     },
   },
   {
     name: "Roshan Maharana",
-    role: "QA Engineer",
-    image: "https://res.cloudinary.com/dvfz67hyi/image/upload/v1745747036/products/mvdida4re2cmhey6ywxl.png",
+    image: "/images/team/roshan.jpg",
     social: {
-      linkedin: "https://www.linkedin.com/in/roshanmaharana/",
-      github: "https://github.com/RoshanMaharana",
-      twitter: "https://twitter.com/RoshanMaharana",
+      linkedin: "https://www.linkedin.com/in/roshan-kumar-maharana-41b161286",
+      github: "https://github.com/RoshanKumar1120",
+      gmail: "mailto:maharanaroshankumar@gmail.com",
     },
   },
 ];
@@ -111,7 +106,7 @@ export default function TeamPage() {
           <div className="relative max-w-2xl mx-auto bg-blue-50 rounded-xl p-6 ">
             <h1 className="text-4xl font-bold m-4 text-blue-700">Our Team</h1>
             <p className="text-black text-base">
-              Meet the talented developers behind Trustify. Our team combines expertise, creativity, and dedication to deliver high-quality solutions and drive innovation forward.
+              Meet the talented developers behind Trustify. Our team combines expertise, creativity, and dedication to deliver innovation forward.
             </p>
           </div>
         </div>
@@ -169,7 +164,6 @@ function TeamMember({ member }: TeamMemberProps) {
 
         {/* Name and Role */}
         <h3 className="font-bold text-xl mb-1 text-blue-700">{member.name}</h3>
-        <p className="text-black mb-6">{member.role}</p>
 
         {/* Social Icons */}
         <div className="flex justify-center space-x-4">
@@ -195,15 +189,15 @@ function TeamMember({ member }: TeamMemberProps) {
               <FaGithub size={20} />
             </a>
           )}
-          {member.social.twitter && member.social.twitter.length > 0 && (
+          {member.social.gmail && member.social.gmail.length > 0 && (
             <a
-              href={member.social.twitter}
+              href={member.social.gmail}
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 text-black hover:bg-blue-400 hover:text-white transition-colors duration-300"
-              aria-label="Twitter"
+              aria-label="Gmail"
             >
-              <FaTwitter size={20} />
+              <SiGmail size={20} />
             </a>
           )}
         </div>
