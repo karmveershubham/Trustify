@@ -9,15 +9,15 @@ export async function middleware(request: NextRequest) {
     const isAuthenticated = request.cookies.get('is_auth')?.value==='true';
     const path = request.nextUrl.pathname;
 
-    if (isAuthenticated) {
-      if (publicPaths.includes(path)) {
-        return NextResponse.redirect(new URL('/profile', request.url));
-      }
-    }
+    // if (isAuthenticated) {
+    //   if (publicPaths.includes(path)) {
+    //     return NextResponse.redirect(new URL('/profile', request.url));
+    //   }
+    // }
 
-    if (!isAuthenticated && !publicPaths.includes(path)) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
+    // if (!isAuthenticated && !publicPaths.includes(path)) {
+    //   return NextResponse.redirect(new URL('/login', request.url));
+    // }
     return NextResponse.next()
   } catch (error) {
     console.error('Error occurred while checking authentication:', error);
