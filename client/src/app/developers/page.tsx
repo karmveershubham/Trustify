@@ -22,11 +22,11 @@ type TeamMemberType = {
 const webTeam: TeamMemberType[] = [
   {
     name: "Shubham Karmveer",
-    image: "/images/team/shubham.jpg",
+    image: "/images/team/shubham.png",
     social: {
       linkedin: "https://www.linkedin.com/in/shubham-karmveer/",
       github: "https://github.com/karmveershubham",
-      gmail: "https://x.com/KarmveerShubham",
+      gmail: "mailto:523110049@nitkkr.ac.in",
     },
   },
   {
