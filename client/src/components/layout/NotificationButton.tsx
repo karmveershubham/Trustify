@@ -39,7 +39,7 @@ const NotificationButton = ({ userId }: { userId: string }) => {
     return () => {
       socket.off("receiveNotification", handleNotification);
     };
-  }, [userId]);
+  }, [userId,socket]);
 
   const handleMarkAsRead = (id: string) => {
     setNotifications((prev) =>
