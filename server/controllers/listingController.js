@@ -241,25 +241,40 @@ export const getProductById = async (req, res) => {
     if (result.records.length === 0) {
       return res.status(403).json({ error: 'Forbidden: You are not authorized to view this product' });
     }
-
-    const record = result.records[0];
-    const productNode = record.get('product');
-    const sellerName = record.get('seller');
-    const verifierName = record.get('verifiedBy');
-
-    if (!productNode) {
+    
+    let product = null;
+    let sellerName = null;
+    const verifierSet = new Set();
+    
+    for (const record of result.records) {
+      const productNode = record.get('product');
+      const seller = record.get('seller');
+      const verifier = record.get('verifiedBy');
+    
+      if (productNode && !product) {
+        product = productNode.properties;
+        sellerName = seller;
+      }
+    
+      if (verifier) {
+        verifierSet.add(verifier);
+      }
+    }
+    
+    if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
-
-    const product = productNode.properties;
-
+    
     const year = product.listingDate?.year?.low || 0;
     const month = product.listingDate?.month?.low || 0;
     const day = product.listingDate?.day?.low || 0;
     const listed_date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
+    
     const images = product.image && Array.isArray(product.image) ? product.image : [];
-
+    
+    const verifiedByCount = verifierSet.size;
+    const verifiedBy = verifiedByCount > 0 ? `${verifiedByCount} person(s) verified` : null;
+    
     res.status(200).json({ 
       success: true, 
       product: {
@@ -272,10 +287,10 @@ export const getProductById = async (req, res) => {
         images: images,
         details: product.details || {},
         seller: sellerName || null,
-        verifiedBy: verifierName || null
+        verifiedBy
       }
     });
-
+    
   } catch (error) {
     console.error('Error retrieving product by id:', error);
     res.status(500).json({ error: 'Internal server error' });

@@ -116,6 +116,7 @@
 
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 interface Product {
   id: string;
@@ -197,27 +198,35 @@ export default function MyListingsPage() {
 
       {products.length === 0 ? (
         <div className="bg-blue-100 p-4 rounded-lg">
-          <p className="text-blue-800">You haven't listed any products yet.</p>
+          <p className="text-blue-800">You have not listed any products yet.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <Link href={`/products/${product.id}`} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-              <div>
-                <img
-                  src={product.image[0]}
-                  alt={product.title}
-                  className="h-48 w-full object-cover"
-                />
-                <div className="p-4">
-                  <h2 className="text-xl font-semibold mb-2">{product.title}</h2>
-                  <p className="text-gray-600 mb-2 line-clamp-2">{product.description}</p>
-                  <p className="text-lg font-bold text-blue-600">₹{product.price}</p>
-                  <p className="text-sm text-gray-500">{product.subCategory}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
+{products.map((product) => (
+  <Link 
+    key={product.id} 
+    href={`/products/${product.id}`} 
+    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+  >
+    <div>
+      <div className="relative h-48 w-full">
+        <Image
+          src={product.image[0] || '/fallback.jpg'} // fallback if image[0] is missing
+          alt={product.title}
+          fill
+          className="object-cover"
+          unoptimized // remove this if image domain is configured in next.config.js
+        />
+      </div>
+      <div className="p-4">
+        <h2 className="text-xl font-semibold mb-2">{product.title}</h2>
+        <p className="text-gray-600 mb-2 line-clamp-2">{product.description}</p>
+        <p className="text-lg font-bold text-blue-600">₹{product.price}</p>
+        <p className="text-sm text-gray-500">{product.subCategory}</p>
+      </div>
+    </div>
+  </Link>
+))}
 
         </div>
       )}
