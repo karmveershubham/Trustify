@@ -39,6 +39,7 @@ export default function ProfileLayout({
   wishlist,
   notifications,
   verifications,
+  listings,
 }: {
   children: React.ReactNode;
   profile: React.ReactNode;
@@ -46,6 +47,7 @@ export default function ProfileLayout({
   wishlist: React.ReactNode;
   notifications: React.ReactNode;
   verifications: React.ReactNode;
+  listings: React.ReactNode;
 }) {
   const user = useAppSelector((state: RootState) => state.auth.user);
   const dispatch = useAppDispatch();
@@ -84,6 +86,8 @@ export default function ProfileLayout({
       setActiveTab("notifications");
     } else if (pathname.includes("/verifications")) {
       setActiveTab("verifications");
+    } else if (pathname.includes("/listings")) {
+      setActiveTab("listings");
     } else {
       setActiveTab("profile");
     }
@@ -198,6 +202,16 @@ export default function ProfileLayout({
                 </Button>
                 
                 <Button 
+                  className={`w-full h-32 text-base font-medium items-center bg-transparent ${activeTab === "listings" ? "border-2 border-blue-700 text-blue-700 bg-blue-100" : "border-2 border-blue-500 text-blue-500"} hover:bg-blue-100 hover:border-blue-700 hover:text-blue-700 shadow-sm transition-all duration-200`}
+                  onClick={() => setActiveTab("listings")}
+                >
+                  <div className="flex items-center justify-center w-full">
+                    <UploadIcon className="h-6 w-6 mr-3" />
+                    <span>My Listings</span>
+                  </div>
+                </Button>
+                
+                <Button 
                   className={`w-full h-32 text-base font-medium items-center bg-transparent ${activeTab === "wishlist" ? "border-2 border-blue-700 text-blue-700 bg-blue-100" : "border-2 border-blue-500 text-blue-500"} hover:bg-blue-100 hover:border-blue-700 hover:text-blue-700 shadow-sm transition-all duration-200`}
                   onClick={() => setActiveTab("wishlist")}
                 >
@@ -304,6 +318,7 @@ export default function ProfileLayout({
             {activeTab === "wishlist" && wishlist}
             {activeTab === "notifications" && notifications}
             {activeTab === "verifications" && verifications}
+            {activeTab === "listings" && listings}
           </div>
         </div>
       </div>

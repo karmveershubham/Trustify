@@ -17,7 +17,8 @@ WITH p
 MATCH (u:User { id: $userId }) 
 MERGE (u)-[r:LISTED]->(p)
 SET r.isSold = false
-RETURN p
+WITH u.name AS sellerName, p
+RETURN sellerName,p
 `;
 
 export default queries;

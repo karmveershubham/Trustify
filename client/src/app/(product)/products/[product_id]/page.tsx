@@ -7,30 +7,8 @@ import Link from "next/link";
 import { getProductById, Product } from "@/lib/productService";
 import { toast } from "sonner";
 
-const handleVerifyProduct=  async (productId: string)=>{
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/products/${productId}/verify`, {
-      method: 'POST',
-      credentials: 'include',
-    });
 
-    if (!response.ok) {
-      throw new Error('Verification failed');
-    }
 
-    const data = await response.json();
-    if(data.newlyVerified){
-      console.log('Product verified successfully:', data);
-      toast.success('Product verified successfully!');
-    }else{
-       toast.message('Product already verified!');
-    }
-    
-  } catch (error) {
-    console.error('Error verifying product:', error);
-    toast.error('Error verifying product. Please try again.');
-  }
-};
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -41,6 +19,37 @@ export default function ProductDetailPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [productDetails, setProductDetails] = useState<Record<string, any> | null>(null);
+  const [verifying, setVerifying] = useState(false);
+
+  const handleVerifyProduct=  async (productId: string)=>{
+
+    try {
+      setVerifying(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/listings/products/${productId}/verify`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Verification failed');
+      }
+
+      const data = await response.json();
+      if(data.success){
+        console.log('Product verified successfully:', data);
+        toast.success('Product verified successfully!');
+      }else{
+        toast.message('Product already verified!');
+      }
+      
+    } catch (error) {
+      console.error('Error verifying product:', error);
+      toast.error('Error verifying product. Please try again.');
+    }finally{
+      setVerifying(false);
+    }
+    
+  };
 
   useEffect(() => {
     async function fetchProduct() {
@@ -97,7 +106,7 @@ export default function ProductDetailPage() {
 
   const priceValue = product.price;
   const images = product.images.length > 0 ? product.images : ["/placeholder.jpg"];
-  const isProductVerified = product.verifiedBy && product.verifiedBy !== "Unknown" && product.verifiedBy !== "Null";
+  // const isProductVerified = product.verifiedBy && product.verifiedBy !== "Unknown" && product.verifiedBy !== "Null";
 
   // Format a detail value based on its key
   const formatDetailValue = (key: string, value: any): string => {
@@ -210,21 +219,35 @@ export default function ProductDetailPage() {
               </div>
             )}
             
+            { product.verifiedBy !== "self" && (
             <div className="mb-6">
               <div className="grid grid-cols-2 gap-4">
-                {!isProductVerified ? (
-                  <button onClick={() => handleVerifyProduct(product?.id)} className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full" >
-                    Verify Product
+                {!product.verifiedBy ? (
+                  <button
+                     onClick={() => handleVerifyProduct(product.id)}
+                    disabled={verifying}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors text-center w-full ${
+                      verifying
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                    }`}
+                  >
+                    {verifying ? "Verifying..." : "Verify Product"}
                   </button>
-                ):(<button className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full" >
+                ) : (
+                  <button
+                    className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full"
+                  >
                     Already Verified
-                  </button>)}
-                  
+                  </button>
+                )}
+
                 <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-center w-full">
                   Contact Seller
                 </button>
               </div>
             </div>
+          )}
             
             <div className="p-6 bg-gray-50 rounded-lg">
               <h3 className="text-lg font-semibold mb-4">Seller Information</h3>
@@ -232,7 +255,7 @@ export default function ProductDetailPage() {
                 <div>
                   <p className="font-medium text-blue-600">Seller: {product.seller || 'Anonymous'}</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    {isProductVerified
+                    {product.verifiedBy
                       ? `Verified By: ${product.verifiedBy}` 
                       : 'Not verified yet'}
                   </p>

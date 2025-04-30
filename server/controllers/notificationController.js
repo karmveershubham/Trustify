@@ -73,30 +73,31 @@ export const markNotificationAsRead = async (req, res) => {
   }
 };
 
-export const createAndDispatchNotifications = async ({ senderId, productId, io }) => {
+export const createAndDispatchNotifications = async ({title, message, senderId, productId, io }) => {
   const session = driver.getDriver().session();
-
   try {
     const result = await session.run(
       `MATCH (sender:User {id: $senderId})
       MATCH (sender)-[:HAS_CONTACT]->(u:User)-[:HAS_CONTACT]->(sender)
-      WITH sender, collect(u) AS mutuals,
-           apoc.create.uuid() AS notifId,
-           datetime() AS ts,
-           'Your contact ' + sender.name + ' has listed a new product 📦.' AS msg
+      WITH sender, collect(u) AS mutuals
+      WITH sender, mutuals, apoc.create.uuid() AS notifId, datetime() AS ts
+
       CREATE (n:Notification {
         id: notifId,
-        message: msg,
+        title: $title,
+        message: $message,
         productId: $productId,
         senderId: sender.id,
         timestamp: ts
       })
+
       WITH n, mutuals
       UNWIND mutuals AS user
       MERGE (n)-[r:SENT_TO]->(user)
       SET r.isRead = false
+
       RETURN n, user.id AS contactId, r.isRead AS isRead`,
-      { senderId, productId }
+      { senderId, productId,message,title}
     );
 
     const notificationNode = result.records[0]?.get('n')?.properties;
@@ -111,6 +112,7 @@ export const createAndDispatchNotifications = async ({ senderId, productId, io }
       const isRead = record.get('isRead');
       io.to(contactId).emit("receiveNotification", {
         id: notificationNode.id,
+        title: notificationNode.title,
         message: notificationNode.message,
         productId: notificationNode.productId,
         senderId: notificationNode.senderId,

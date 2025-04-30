@@ -36,13 +36,11 @@ export const addProduct = async (req, res) => {
       console.log("userId", req.user?.id);
       const { subCategory } = req.body;
 
-      // Check for valid category
       if (!categoryAttributes[subCategory]) {
             console.error('Invalid category:', subCategory);
           return res.status(400).json({ error: "Invalid category" });
       }
 
-      // Validate product data
       const validation = validateProductData(req, subCategory);
       if (!validation.isValid) {
             console.error('Validation failed:', validation.missingFields);
@@ -51,42 +49,39 @@ export const addProduct = async (req, res) => {
           });
       }
 
-      // Upload image to Cloudinary
-
       const images = req.file && req.file.path ? [req.file.path] : [];
       if (images.length === 0) {
         return res.status(400).json({ status: "failed", message: "All fields, including images, are required" });
       }
-      
     
       req.body.image=images;
-      // console.log("reqqq bodyyyy", req.body);
       const queryParams = req.body;
-      queryParams.userId = req.user?.id; // Assuming userId is available after authentication
+      queryParams.userId = req.user?.id; 
     
       session = getDriver().session();
       const query = pQuery;
       const result = await session.run(query, queryParams);
 
-      // Log the result to see what Neo4j is returning
-      console.log('Query Result:', result);
-
-      // Check if the result contains records
       if (result.records.length === 0) {
           return res.status(500).json({ error: 'Failed to add product, no data returned' });
       }
 
-      const productNode = result.records[0].get('p');
+      const record = result.records[0];
 
-      // If the product node is missing, return an error
-      if (!productNode) {
+      if (!record) {
           return res.status(500).json({ error: 'Product creation failed, no product node returned' });
       }
 
-      const product = productNode.properties;
-      console.log('Product:', product); 
-      const userID=req.user?.id; // Assuming userId is available after authentication
+      const product = record.get('p').properties;
+      console.log('Product:', product);
+      console.log(record);
+      const sellerName = record.get('sellerName')
+      console.log(sellerName)
+      const userID=req.user?.id; 
+
       await createAndDispatchNotifications({
+        title: "New Product Listed",
+        message: `Your Friend ${sellerName} has listed a new product 📦.`,
         senderId: userID,
         productId: product.id,
         io: req.app.get('io'),
@@ -106,7 +101,7 @@ export const addProduct = async (req, res) => {
 export const getProduct = async (req, res) => {
   console.log("Request received");
 
-  const userId = req.user?.id; // Assuming userId is available after authentication
+  const userId = req.user?.id;
 
   if (!userId) {
     return res.status(400).json({ status: "failed", message: "User authentication required" });
@@ -117,13 +112,11 @@ export const getProduct = async (req, res) => {
     session = getDriver().session();
 
     const query = `
-          MATCH (u:User {id: $userId})
+      MATCH (u:User {id: $userId})
       MATCH (u)-[:HAS_CONTACT]->(contact:User)-[:HAS_CONTACT]->(u)
 
-
-      OPTIONAL MATCH (contact)-[r1:LISTED]->(p1:Product)  WHERE r1.isSold = false
+      OPTIONAL MATCH (contact)-[r1:LISTED]->(p1:Product) WHERE r1.isSold = false
       OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(p2:Product)<-[r2:LISTED]-(sellerName:User) WHERE r2.isSold = false AND sellerName <> u
-
 
       WITH
         COLLECT(DISTINCT { product: p2, seller: sellerName.name, verifiedBy: contact.name }) + 
@@ -131,12 +124,12 @@ export const getProduct = async (req, res) => {
 
       UNWIND Products AS p
       RETURN p.product AS product, p.verifiedBy AS verifiedBy, p.seller AS seller
-
     `;
 
     const result = await session.run(query, { userId });
 
-    const products = [];
+    // Use a Map to handle duplicates based on product.id
+    const productMap = new Map();
 
     result.records.forEach(record => {
       const productNode = record.get("product");
@@ -144,18 +137,45 @@ export const getProduct = async (req, res) => {
       const seller = record.get("seller");
 
       if (productNode) {
-        products.push({
-          id: productNode.properties.id,   
-          name: productNode.properties.title,
-          description: productNode.properties.description,
-          listed_date: `${productNode.properties.listingDate.year.low}-${productNode.properties.listingDate.month.low}-${productNode.properties.listingDate.day.low}`,
-          category: productNode.properties.subCategory,
-          price: parseInt(productNode.properties.price),
-          images: productNode.properties.image || [],
-          verifiedBy: verifiedBy || null,
-          seller: seller || null
-        });
-        
+        const productId = productNode.properties.id; // Unique identifier for product
+
+        // Check if the product already exists in the map
+        if (!productMap.has(productId)) {
+          productMap.set(productId, {
+            id: productNode.properties.id,
+            name: productNode.properties.title,
+            description: productNode.properties.description,
+            listed_date: `${productNode.properties.listingDate.year.low}-${productNode.properties.listingDate.month.low}-${productNode.properties.listingDate.day.low}`,
+            category: productNode.properties.subCategory,
+            price: parseInt(productNode.properties.price),
+            images: productNode.properties.image || [],
+            verifiedBy: verifiedBy ? [verifiedBy] : [],  // Store verifiers as an array
+            seller: seller || null
+          });
+        } else {
+          // If already exists, update the verifiedBy list
+          const existingProduct = productMap.get(productId);
+          if (verifiedBy && !existingProduct.verifiedBy.includes(verifiedBy)) {
+            existingProduct.verifiedBy.push(verifiedBy);
+          }
+        }
+      }
+    });
+
+    // Convert the map values to an array of products
+    const products = Array.from(productMap.values());
+
+    // Modify the verifiedBy field and include the count of verifiers
+    products.forEach(product => {
+      const verifyCount = product.verifiedBy.length;
+
+      // If verifyCount is 0, set verifiedBy to null
+      if (verifyCount === 0) {
+        product.verifiedBy = null;
+      } else {
+        const verifiedByList = product.verifiedBy.join(", ");  // Concatenate verifiers' names
+        product.verifiedByCount = verifyCount;
+        product.verifiedBy = verifyCount === 1 ? verifiedByList : `${verifyCount} person(s) verified`;  // If 1, send names, if >1 send count
       }
     });
 
@@ -204,7 +224,7 @@ export const getProductById = async (req, res) => {
         OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(pVerified:Product)<-[:LISTED]-(seller:User)
           WHERE pVerified.id = $productId 
         WITH 
-          COLLECT(DISTINCT { product: pSelf, seller: u.name, verifiedBy: NULL }) +
+          COLLECT(DISTINCT { product: pSelf, seller: u.name, verifiedBy: 'self' }) +
           COLLECT(DISTINCT { product: pselfVerified, seller: contact.name, verifiedBy: u.name }) +
           COLLECT(DISTINCT { product: pContact, seller: contact.name, verifiedBy: NULL }) +
           COLLECT(DISTINCT { product: pVerified, seller: seller.name, verifiedBy: contact.name }) AS Products
@@ -221,25 +241,40 @@ export const getProductById = async (req, res) => {
     if (result.records.length === 0) {
       return res.status(403).json({ error: 'Forbidden: You are not authorized to view this product' });
     }
-
-    const record = result.records[0];
-    const productNode = record.get('product');
-    const sellerName = record.get('seller');
-    const verifierName = record.get('verifiedBy');
-
-    if (!productNode) {
+    
+    let product = null;
+    let sellerName = null;
+    const verifierSet = new Set();
+    
+    for (const record of result.records) {
+      const productNode = record.get('product');
+      const seller = record.get('seller');
+      const verifier = record.get('verifiedBy');
+    
+      if (productNode && !product) {
+        product = productNode.properties;
+        sellerName = seller;
+      }
+    
+      if (verifier) {
+        verifierSet.add(verifier);
+      }
+    }
+    
+    if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
-
-    const product = productNode.properties;
-
+    
     const year = product.listingDate?.year?.low || 0;
     const month = product.listingDate?.month?.low || 0;
     const day = product.listingDate?.day?.low || 0;
     const listed_date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
+    
     const images = product.image && Array.isArray(product.image) ? product.image : [];
-
+    
+    const verifiedByCount = verifierSet.size;
+    const verifiedBy = verifiedByCount > 0 ? `${verifiedByCount} person(s) verified` : null;
+    
     res.status(200).json({ 
       success: true, 
       product: {
@@ -252,10 +287,10 @@ export const getProductById = async (req, res) => {
         images: images,
         details: product.details || {},
         seller: sellerName || null,
-        verifiedBy: verifierName || null
+        verifiedBy
       }
     });
-
+    
   } catch (error) {
     console.error('Error retrieving product by id:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -265,7 +300,6 @@ export const getProductById = async (req, res) => {
     }
   }
 };
-
 
 export const verifyProduct = async (req, res) => {
   const session = getDriver().session();
@@ -279,17 +313,9 @@ export const verifyProduct = async (req, res) => {
   try {
     const result = await session.run(
       `MATCH (u:User {id: $userId})
-       MATCH (p:Product {id: $productId})<-[:LISTED]-(seller:User)
-       MATCH (u)-[:HAS_CONTACT]->(seller)
-       OPTIONAL MATCH (u)-[v:HAS_VERIFIED]->(p)
-       WITH u, p, v
-       CALL apoc.do.when(
-         v IS NULL,
-         'MERGE (u)-[:HAS_VERIFIED]->(p) RETURN true AS created',
-         'RETURN false AS created',
-         {u: u, p: p}
-       ) YIELD value
-       RETURN value.created AS created, p.id AS productId`,
+            MATCH (p:Product {id: $productId})
+            MERGE (u)-[r:HAS_VERIFIED]->(p)
+            RETURN u.name AS verifiedBy, p`,
       { userId, productId }
     );
 
@@ -298,19 +324,55 @@ export const verifyProduct = async (req, res) => {
       return res.status(403).json({ error: 'You are not authorized to verify this product.' });
     }
 
-    const created = result.records[0].get('created');
+    const record = result.records[0];
+    const product = record.get('p').properties;
+    console.log('Product:', product);
+    const verifiedBy = record.get('verifiedBy')
 
-    if (created) {
-      console.log("Product verified successfully!");
-    } else {
-      console.log("Product was already verified. No new relation created.");
-    }
 
-    res.json({ success: true, productId, newlyVerified: created });
+    await createAndDispatchNotifications({
+      title: "Verfied Product",
+      message:`Your Friend ${verifiedBy} has verfied a product 📦.`,
+      senderId: userId,
+      productId: productId,
+      io: req.app.get('io'),
+    });
+
+
+    res.json({ success: true, productId});
   } catch (error) {
     console.error('Error verifying product:', error);
     res.status(500).json({ error: 'Server error' });
   } finally {
     await session.close();
   }
+};
+
+export const getMyListings = async (req, res) => {
+    try {
+        const session = getDriver().session();
+        const userId = req.user.id;
+
+        const query = `
+            MATCH (u:User {id: $userId})-[:LISTED]->(p:Product)
+            RETURN p
+            ORDER BY p.createdAt DESC
+        `;
+
+        const result = await session.run(query, { userId });
+        const products = result.records.map(record => record.get('p').properties);
+
+        await session.close();
+
+        res.status(200).json({
+            success: true,
+            data: products
+        });
+    } catch (error) {
+        console.error('Error fetching user listings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching your listings'
+        });
+    }
 };
