@@ -314,3 +314,32 @@ export const verifyProduct = async (req, res) => {
     await session.close();
   }
 };
+
+export const getMyListings = async (req, res) => {
+    try {
+        const session = getDriver().session();
+        const userId = req.user.id;
+
+        const query = `
+            MATCH (u:User {id: $userId})-[:LISTED]->(p:Product)
+            RETURN p
+            ORDER BY p.createdAt DESC
+        `;
+
+        const result = await session.run(query, { userId });
+        const products = result.records.map(record => record.get('p').properties);
+
+        await session.close();
+
+        res.status(200).json({
+            success: true,
+            data: products
+        });
+    } catch (error) {
+        console.error('Error fetching user listings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching your listings'
+        });
+    }
+};
