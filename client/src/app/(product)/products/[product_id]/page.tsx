@@ -97,7 +97,7 @@ export default function ProductDetailPage() {
 
   const priceValue = product.price;
   const images = product.images.length > 0 ? product.images : ["/placeholder.jpg"];
-  const isProductVerified = product.verifiedBy && product.verifiedBy !== "Unknown" && product.verifiedBy !== "Null";
+  // const isProductVerified = product.verifiedBy && product.verifiedBy !== "Unknown" && product.verifiedBy !== "Null";
 
   // Format a detail value based on its key
   const formatDetailValue = (key: string, value: any): string => {
@@ -210,21 +210,32 @@ export default function ProductDetailPage() {
               </div>
             )}
             
-            <div className="mb-6">
-              <div className="grid grid-cols-2 gap-4">
-                {!isProductVerified ? (
-                  <button onClick={() => handleVerifyProduct(product?.id)} className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full" >
-                    Verify Product
+            {product.verifiedBy !== 'self' && (
+              <div className="mb-6">
+                <div className="grid grid-cols-2 gap-4">
+                  {!product.verifiedBy? (
+                    <button
+                      onClick={() => handleVerifyProduct(product.id)}
+                      className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full"
+                    >
+                      Verify Product
+                    </button>
+                  ) : (
+                    <button
+                      className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full"
+                    >
+                      Already Verified
+                    </button>
+                  )}
+
+                  <button
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-center w-full"
+                  >
+                    Contact Seller
                   </button>
-                ):(<button className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center w-full" >
-                    Already Verified
-                  </button>)}
-                  
-                <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-center w-full">
-                  Contact Seller
-                </button>
+                </div>
               </div>
-            </div>
+            )}
             
             <div className="p-6 bg-gray-50 rounded-lg">
               <h3 className="text-lg font-semibold mb-4">Seller Information</h3>
@@ -232,7 +243,7 @@ export default function ProductDetailPage() {
                 <div>
                   <p className="font-medium text-blue-600">Seller: {product.seller || 'Anonymous'}</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    {isProductVerified
+                    {product.verifiedBy
                       ? `Verified By: ${product.verifiedBy}` 
                       : 'Not verified yet'}
                   </p>

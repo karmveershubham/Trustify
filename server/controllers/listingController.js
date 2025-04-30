@@ -224,7 +224,7 @@ export const getProductById = async (req, res) => {
         OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(pVerified:Product)<-[:LISTED]-(seller:User)
           WHERE pVerified.id = $productId 
         WITH 
-          COLLECT(DISTINCT { product: pSelf, seller: u.name, verifiedBy: NULL }) +
+          COLLECT(DISTINCT { product: pSelf, seller: u.name, verifiedBy: 'self' }) +
           COLLECT(DISTINCT { product: pselfVerified, seller: contact.name, verifiedBy: u.name }) +
           COLLECT(DISTINCT { product: pContact, seller: contact.name, verifiedBy: NULL }) +
           COLLECT(DISTINCT { product: pVerified, seller: seller.name, verifiedBy: contact.name }) AS Products
@@ -331,4 +331,33 @@ export const verifyProduct = async (req, res) => {
   } finally {
     await session.close();
   }
+};
+
+export const getMyListings = async (req, res) => {
+    try {
+        const session = getDriver().session();
+        const userId = req.user.id;
+
+        const query = `
+            MATCH (u:User {id: $userId})-[:LISTED]->(p:Product)
+            RETURN p
+            ORDER BY p.createdAt DESC
+        `;
+
+        const result = await session.run(query, { userId });
+        const products = result.records.map(record => record.get('p').properties);
+
+        await session.close();
+
+        res.status(200).json({
+            success: true,
+            data: products
+        });
+    } catch (error) {
+        console.error('Error fetching user listings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching your listings'
+        });
+    }
 };
