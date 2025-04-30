@@ -1,11 +1,11 @@
  "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { BellIcon } from "lucide-react";
 
 type NotificationType = {
   id: string;
+  title: string;
   message: string;
   timestamp: string;
   senderId: string;
@@ -78,7 +78,8 @@ export default function NotificationsPage() {
               className="p-4 bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center"
             >
               <div>
-                <p className="text-sm text-gray-700">{n.message}</p>
+                <p className="text-sm font-semibold text-gray-900">{n.title}</p>
+                <p className="text-sm text-gray-700 mt-0.5">{n.message}</p>
                 <p className="text-xs text-gray-400 mt-1">{n.timestamp.slice(11)}</p>
               </div>
 

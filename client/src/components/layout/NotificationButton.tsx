@@ -13,6 +13,7 @@ const socket = io(api_url);
 
 interface Notification {
   id: string;
+  title:string;
   message: string;
   isRead: boolean;
   timestamp: string;
@@ -37,9 +38,10 @@ const NotificationButton = ({ userId }: { userId: string }) => {
     socket.on("receiveNotification", handleNotification);
 
     return () => {
+      socket.emit("leaveRoom", { userId });
       socket.off("receiveNotification", handleNotification);
     };
-  }, [userId]);
+  }, [userId,socket]);
 
   const handleMarkAsRead = (id: string) => {
     setNotifications((prev) =>
@@ -68,12 +70,11 @@ const NotificationButton = ({ userId }: { userId: string }) => {
         {notifications.length > 0 ? (
           notifications.map((notif) => (
             <div key={notif.id} className="p-2 border-b last:border-none">
-              <div
-                className={`flex justify-between ${
-                  notif.isRead ? "text-gray-500" : "font-bold"
-                }`}
-              >
-                <span>{notif.message}</span>
+              <div className={`flex justify-between ${  notif.isRead ? "text-gray-500" : "font-bold"}`}>
+                 <div className="flex flex-col">
+                  <span className="text-sm">{notif.title}</span>
+                  <span className="text-sm font-normal">{notif.message}</span>
+                </div>
                 {!notif.isRead && (
                   <button
                     onClick={() => handleMarkAsRead(notif.id)}
