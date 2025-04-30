@@ -41,7 +41,7 @@ const NotificationButton = ({ userId }: { userId: string }) => {
       socket.emit("leaveRoom", { userId });
       socket.off("receiveNotification", handleNotification);
     };
-  }, [userId,socket]);
+  }, [userId]);
 
   const handleMarkAsRead = (id: string) => {
     setNotifications((prev) =>
