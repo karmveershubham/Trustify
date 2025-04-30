@@ -199,7 +199,7 @@ export const getProductById = async (req, res) => {
         OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(pVerified:Product)<-[:LISTED]-(seller:User)
           WHERE pVerified.id = $productId 
         WITH 
-          COLLECT(DISTINCT { product: pSelf, seller: u.name, verifiedBy: NULL }) +
+          COLLECT(DISTINCT { product: pSelf, seller: u.name, verifiedBy: 'self' }) +
           COLLECT(DISTINCT { product: pselfVerified, seller: contact.name, verifiedBy: u.name }) +
           COLLECT(DISTINCT { product: pContact, seller: contact.name, verifiedBy: NULL }) +
           COLLECT(DISTINCT { product: pVerified, seller: seller.name, verifiedBy: contact.name }) AS Products
