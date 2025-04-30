@@ -112,13 +112,11 @@ export const getProduct = async (req, res) => {
     session = getDriver().session();
 
     const query = `
-          MATCH (u:User {id: $userId})
+      MATCH (u:User {id: $userId})
       MATCH (u)-[:HAS_CONTACT]->(contact:User)-[:HAS_CONTACT]->(u)
 
-
-      OPTIONAL MATCH (contact)-[r1:LISTED]->(p1:Product)  WHERE r1.isSold = false
+      OPTIONAL MATCH (contact)-[r1:LISTED]->(p1:Product) WHERE r1.isSold = false
       OPTIONAL MATCH (contact)-[:HAS_VERIFIED]->(p2:Product)<-[r2:LISTED]-(sellerName:User) WHERE r2.isSold = false AND sellerName <> u
-
 
       WITH
         COLLECT(DISTINCT { product: p2, seller: sellerName.name, verifiedBy: contact.name }) + 
@@ -126,12 +124,12 @@ export const getProduct = async (req, res) => {
 
       UNWIND Products AS p
       RETURN p.product AS product, p.verifiedBy AS verifiedBy, p.seller AS seller
-
     `;
 
     const result = await session.run(query, { userId });
 
-    const products = [];
+    // Use a Map to handle duplicates based on product.id
+    const productMap = new Map();
 
     result.records.forEach(record => {
       const productNode = record.get("product");
@@ -139,18 +137,45 @@ export const getProduct = async (req, res) => {
       const seller = record.get("seller");
 
       if (productNode) {
-        products.push({
-          id: productNode.properties.id,   
-          name: productNode.properties.title,
-          description: productNode.properties.description,
-          listed_date: `${productNode.properties.listingDate.year.low}-${productNode.properties.listingDate.month.low}-${productNode.properties.listingDate.day.low}`,
-          category: productNode.properties.subCategory,
-          price: parseInt(productNode.properties.price),
-          images: productNode.properties.image || [],
-          verifiedBy: verifiedBy || null,
-          seller: seller || null
-        });
-        
+        const productId = productNode.properties.id; // Unique identifier for product
+
+        // Check if the product already exists in the map
+        if (!productMap.has(productId)) {
+          productMap.set(productId, {
+            id: productNode.properties.id,
+            name: productNode.properties.title,
+            description: productNode.properties.description,
+            listed_date: `${productNode.properties.listingDate.year.low}-${productNode.properties.listingDate.month.low}-${productNode.properties.listingDate.day.low}`,
+            category: productNode.properties.subCategory,
+            price: parseInt(productNode.properties.price),
+            images: productNode.properties.image || [],
+            verifiedBy: verifiedBy ? [verifiedBy] : [],  // Store verifiers as an array
+            seller: seller || null
+          });
+        } else {
+          // If already exists, update the verifiedBy list
+          const existingProduct = productMap.get(productId);
+          if (verifiedBy && !existingProduct.verifiedBy.includes(verifiedBy)) {
+            existingProduct.verifiedBy.push(verifiedBy);
+          }
+        }
+      }
+    });
+
+    // Convert the map values to an array of products
+    const products = Array.from(productMap.values());
+
+    // Modify the verifiedBy field and include the count of verifiers
+    products.forEach(product => {
+      const verifyCount = product.verifiedBy.length;
+
+      // If verifyCount is 0, set verifiedBy to null
+      if (verifyCount === 0) {
+        product.verifiedBy = null;
+      } else {
+        const verifiedByList = product.verifiedBy.join(", ");  // Concatenate verifiers' names
+        product.verifiedByCount = verifyCount;
+        product.verifiedBy = verifyCount === 1 ? verifiedByList : `${verifyCount} person(s) verified`;  // If 1, send names, if >1 send count
       }
     });
 
