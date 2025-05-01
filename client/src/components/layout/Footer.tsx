@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { UserGroupIcon } from "@heroicons/react/24/solid";
 import { FaFacebookF, FaXTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa6";
+import Image from "next/image";
+import logo from "@/../public/icons/logoo.png"
 
 const Footer = () => {
   return (
@@ -10,7 +12,8 @@ const Footer = () => {
           {/* Logo and about */}
           <div className="col-span-1 text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <UserGroupIcon className="text-blue-500 h-8 w-8" />
+              {/* <UserGroupIcon className="text-blue-500 h-8 w-8" /> */}
+              <Image src={logo} alt="Trustify Logo" width={40} height={40} className="h-8 w-8" />
               <span className="text-2xl font-bold">Trustify</span>
             </div>
             <p className="text-gray-600 text-base mb-6 mx-auto max-w-md">

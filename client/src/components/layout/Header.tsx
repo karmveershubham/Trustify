@@ -19,6 +19,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bell, Contact, Heart, LogOut, ShoppingBag, ShoppingCart, User } from 'lucide-react';
 import NotificationButton from './NotificationButton';
 import { RainbowButton } from '../magicui/rainbow-button';
+import Image from "next/image";
+import logo from "@/../public/icons/logoo.png"
 
 export default function Header() {
   const user = useAppSelector((state: RootState) => state.auth.user);
@@ -49,7 +51,8 @@ export default function Header() {
       <header className="container mx-auto py-4 px-4 flex items-center justify-between transition-all duration-700">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <UserGroupIcon className="text-blue-500 h-6 w-6 animate-pulse" />
+          {/* <UserGroupIcon className="text-blue-500 h-6 w-6 animate-pulse" /> */}
+          <Image src={logo} alt="Trustify Logo" width={40} height={40} className="h-8 w-8 animate-pulse" />
           <span className="text-xl font-bold">
             <Link href="/">Trustify</Link>
           </span>
